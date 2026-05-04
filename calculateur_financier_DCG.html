@@ -1345,7 +1345,7 @@
           <input type="date" id="dev_date" style="max-width:220px;" max="">
         </div>
         <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
-          <button class="btn" style="max-width:220px; margin-top:0;" onclick="convertirDevise()">Convertir</button>
+          <button id="btn-dev-convert" class="btn" style="max-width:220px; margin-top:0;" onclick="convertirDevise()">Convertir</button>
           <button class="btn secondary" style="max-width:180px; margin-top:0;" onclick="document.getElementById('dev_date').value=''; convertirDevise()">Taux du jour</button>
         </div>
         <div class="result" id="res_dev">
@@ -1380,7 +1380,7 @@
             <label>Date (vide = aujourd'hui)</label>
             <input type="date" id="multi_date" style="">
           </div>
-          <button class="btn" style="margin-top:0; max-width:200px;" onclick="tableauMultiDevises()">Afficher le tableau</button>
+          <button id="btn-multi-tableau" class="btn" style="margin-top:0; max-width:200px;" onclick="tableauMultiDevises()">Afficher le tableau</button>
         </div>
         <div class="result" id="res_multi">
           <div id="multi_table"></div>
@@ -2327,9 +2327,6 @@ function calcTN(){
 
 // ============================================================
 // DEVISES — API Frankfurter (données BCE)
-// ============================================================
-// ============================================================
-// DEVISES — API Frankfurter (données BCE)
 // Logique BCE : toujours fetcher en base EUR, puis calculer
 // par division — identique à la méthode du taux de référence
 // réglementaire BCE utilisé en comptabilité.
@@ -2339,103 +2336,151 @@ const FRANK_BASE = 'https://api.frankfurter.dev/v1';
 async function fetchBCERate(from, to, dateVal) {
   const endpoint = dateVal ? `${FRANK_BASE}/${dateVal}` : `${FRANK_BASE}/latest`;
 
-  if (from === 'EUR') {
-    // EUR → X : fetch direct en base EUR
-    const resp = await fetch(`${endpoint}?from=EUR&to=${to}`);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data = await resp.json();
-    if (!data.rates?.[to]) throw new Error('Taux non disponible');
-    return { rate: data.rates[to], date: data.date };
+  // AbortController : timeout 10s pour éviter un hang silencieux
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
 
-  } else if (to === 'EUR') {
-    // X → EUR : fetch EUR/X, inverser (méthode BCE)
-    const resp = await fetch(`${endpoint}?from=EUR&to=${from}`);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data = await resp.json();
-    if (!data.rates?.[from]) throw new Error('Taux non disponible');
-    return { rate: 1 / data.rates[from], date: data.date };
-
-  } else {
-    // X → Y : passer par EUR comme pivot — (EUR/Y) / (EUR/X)
-    const resp = await fetch(`${endpoint}?from=EUR&to=${from},${to}`);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data = await resp.json();
-    if (!data.rates?.[from] || !data.rates?.[to]) throw new Error('Taux non disponible');
-    return { rate: data.rates[to] / data.rates[from], date: data.date };
+  try {
+    let url, data;
+    if (from === 'EUR') {
+      const resp = await fetch(`${endpoint}?from=EUR&to=${to}`, { signal: controller.signal });
+      if (!resp.ok) throw new Error(`Serveur BCE HTTP ${resp.status}`);
+      data = await resp.json();
+      if (!data.rates?.[to]) throw new Error(`Taux ${to} non disponible dans la réponse`);
+      return { rate: data.rates[to], date: data.date };
+    } else if (to === 'EUR') {
+      const resp = await fetch(`${endpoint}?from=EUR&to=${from}`, { signal: controller.signal });
+      if (!resp.ok) throw new Error(`Serveur BCE HTTP ${resp.status}`);
+      data = await resp.json();
+      if (!data.rates?.[from]) throw new Error(`Taux ${from} non disponible dans la réponse`);
+      return { rate: 1 / data.rates[from], date: data.date };
+    } else {
+      const resp = await fetch(`${endpoint}?from=EUR&to=${from},${to}`, { signal: controller.signal });
+      if (!resp.ok) throw new Error(`Serveur BCE HTTP ${resp.status}`);
+      data = await resp.json();
+      if (!data.rates?.[from] || !data.rates?.[to]) throw new Error(`Taux ${from}/${to} non disponibles`);
+      return { rate: data.rates[to] / data.rates[from], date: data.date };
+    }
+  } finally {
+    clearTimeout(timer);
   }
 }
 
 async function convertirDevise() {
-  const montant = parseFloat(document.getElementById('dev_montant').value);
-  const from = document.getElementById('dev_from').value;
-  const to = document.getElementById('dev_to').value;
-  const dateVal = document.getElementById('dev_date').value;
-  if (isNaN(montant)) return alert('Entrez un montant valide');
-  if (from === to) return alert('Les deux devises sont identiques');
-  const btn = document.querySelector('#an-devises .btn');
-  btn.innerHTML = '<span class="spinner"></span>Chargement...';
-  btn.disabled = true;
+  // Récupération sécurisée des valeurs
+  const montantEl = document.getElementById('dev_montant');
+  const fromEl    = document.getElementById('dev_from');
+  const toEl      = document.getElementById('dev_to');
+  const dateEl    = document.getElementById('dev_date');
+  const resultEl  = document.getElementById('dev_result');
+  const resValEl  = document.getElementById('dev_res_val');
+  const resLblEl  = document.getElementById('dev_res_label');
+  const resDetEl  = document.getElementById('dev_res_detail');
+  const btn       = document.getElementById('btn-dev-convert');
+
+  if (!montantEl || !fromEl || !toEl) {
+    alert('Erreur : éléments du convertisseur introuvables.');
+    return;
+  }
+
+  const montant = parseFloat(montantEl.value);
+  const from    = fromEl.value;
+  const to      = toEl.value;
+  const dateVal = dateEl ? dateEl.value : '';
+
+  if (isNaN(montant) || montant === 0) { alert('Entrez un montant valide (≠ 0).'); return; }
+  if (from === to) { alert('Les deux devises sont identiques.'); return; }
+
+  // Mise en état chargement
+  if (btn) { btn.textContent = '⏳ Chargement…'; btn.disabled = true; }
+
   try {
     const { rate, date } = await fetchBCERate(from, to, dateVal);
     const result = montant * rate;
     const isHistorique = dateVal && dateVal !== '';
-    document.getElementById('dev_result').value = fmt(result, 4) + ' ' + to;
-    document.getElementById('dev_res_val').textContent = `${fmt(result, 2)} ${to}`;
-    document.getElementById('dev_res_label').textContent = `${fmt(montant, 2)} ${from} =`;
-    document.getElementById('dev_res_detail').innerHTML =
-      `${isHistorique ? '<span style="color:var(--accent2)">📅 Taux historique</span> ' : ''}Date du taux BCE : <strong>${date}</strong><br>` +
+
+    if (resultEl) resultEl.value = fmt(result, 4) + ' ' + to;
+    if (resValEl) resValEl.textContent = `${fmt(result, 2)} ${to}`;
+    if (resLblEl) resLblEl.textContent = `${fmt(montant, 2)} ${from} =`;
+    if (resDetEl) resDetEl.innerHTML =
+      `${isHistorique ? '<span style="color:var(--accent2)">📅 Taux historique</span> ' : ''}` +
+      `Date BCE : <strong>${date}</strong><br>` +
       `1 ${from} = ${fmt(rate, 6)} ${to}<br>` +
       `1 ${to} = ${fmt(1 / rate, 6)} ${from}<br>` +
-      `<span style="font-size:10px; color:var(--muted)">Taux calculé en base EUR officielle BCE — référence réglementaire comptable</span>`;
+      `<span style="font-size:10px;color:var(--muted)">Taux en base EUR officielle BCE — référence réglementaire comptable</span>`;
     showResult('res_dev');
+
   } catch(e) {
-    document.getElementById('dev_res_val').textContent = '—';
-    document.getElementById('dev_res_detail').innerHTML =
-      `<span style="color:var(--danger)">Erreur : ${e.message}<br>Vérifiez votre connexion. La BCE ne publie pas de taux le week-end et les jours fériés — essayez un jour ouvré.</span>`;
+    const msg = e.name === 'AbortError'
+      ? 'Délai dépassé (10s) — vérifiez votre connexion internet.'
+      : `${e.message || e} — La BCE ne publie pas de taux le week-end et les jours fériés : essayez un jour ouvré.`;
+    if (resValEl) resValEl.textContent = '—';
+    if (resLblEl) resLblEl.textContent = 'Échec de conversion';
+    if (resDetEl) resDetEl.innerHTML = `<span style="color:var(--danger)">⚠ ${msg}</span>`;
     showResult('res_dev');
+    console.error('[convertirDevise]', e);
+
   } finally {
-    btn.innerHTML = 'Convertir';
-    btn.disabled = false;
+    if (btn) { btn.textContent = 'Convertir'; btn.disabled = false; }
   }
 }
 
 function swapDevises() {
   const f = document.getElementById('dev_from');
   const t = document.getElementById('dev_to');
-  [f.value, t.value] = [t.value, f.value];
+  if (f && t) { const tmp = f.value; f.value = t.value; t.value = tmp; }
 }
 
 async function tableauMultiDevises() {
-  const montant = parseFloat(document.getElementById('multi_montant').value) || 1000;
-  const from = document.getElementById('multi_from').value;
-  const dateVal = document.getElementById('multi_date').value;
-  const btn = document.querySelectorAll('#an-devises .btn')[2];
-  if (btn) { btn.innerHTML = '<span class="spinner"></span>Chargement...'; btn.disabled = true; }
+  const montant = parseFloat(document.getElementById('multi_montant')?.value) || 1000;
+  const from    = document.getElementById('multi_from')?.value || 'EUR';
+  const dateVal = document.getElementById('multi_date')?.value || '';
+  const tblEl   = document.getElementById('multi_table');
+  const btn     = document.getElementById('btn-multi-tableau');
+
+  if (btn) { btn.textContent = '⏳ Chargement…'; btn.disabled = true; }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+
   try {
     const endpoint = dateVal ? `${FRANK_BASE}/${dateVal}` : `${FRANK_BASE}/latest`;
-    // Toujours en base EUR pour respecter la logique de référence BCE
-    const resp = await fetch(`${endpoint}?from=EUR`);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const resp = await fetch(`${endpoint}?from=EUR`, { signal: controller.signal });
+    clearTimeout(timer);
+    if (!resp.ok) throw new Error(`Serveur BCE HTTP ${resp.status}`);
     const data = await resp.json();
-    const devises = ['EUR','USD','GBP','CHF','JPY','CAD','AUD','CNY','SEK','NOK','DKK','PLN','HUF','TRY','SGD','HKD','NZD','BRL','INR','ZAR','MXN'].filter(d => d !== from);
+
+    const devises = ['EUR','USD','GBP','CHF','JPY','CAD','AUD','CNY','SEK','NOK',
+                     'DKK','PLN','HUF','TRY','SGD','HKD','NZD','BRL','INR','ZAR','MXN']
+                    .filter(d => d !== from);
     const rateFrom = from === 'EUR' ? 1 : data.rates[from];
-    let html = `<div style="font-size:11px; color:var(--muted); margin-bottom:8px;">Taux de référence BCE du <strong>${data.date}</strong> — base : ${fmt(montant,2)} ${from}</div>`;
-    html += `<table><tr><th>Devise</th><th>Taux (1 ${from} = )</th><th>Montant converti</th></tr>`;
+    if (!rateFrom) throw new Error(`Devise source ${from} non disponible`);
+
+    let html = `<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">` +
+      `Taux BCE du <strong>${data.date}</strong> — base : ${fmt(montant,2)} ${from}</div>` +
+      `<table><tr><th>Devise</th><th>1 ${from} =</th><th>${fmt(montant,2)} ${from} =</th></tr>`;
     devises.forEach(d => {
       const rateTo = d === 'EUR' ? 1 : data.rates[d];
       if (rateTo && rateFrom) {
         const rate = rateTo / rateFrom;
-        html += `<tr><td>${d}</td><td>${fmt(rate, 6)}</td><td><strong>${fmt(montant * rate, 2)}</strong></td></tr>`;
+        html += `<tr><td>${d}</td><td>${fmt(rate,6)}</td><td><strong>${fmt(montant*rate,2)}</strong></td></tr>`;
       }
     });
-    html += `</table><div style="font-size:10px; color:var(--muted); margin-top:8px;">Taux calculés en base EUR officielle BCE — référence réglementaire</div>`;
-    document.getElementById('multi_table').innerHTML = html;
+    html += `</table><div style="font-size:10px;color:var(--muted);margin-top:8px;">` +
+      `Taux calculés en base EUR BCE — référence réglementaire</div>`;
+    if (tblEl) tblEl.innerHTML = html;
     showResult('res_multi');
+
   } catch(e) {
-    document.getElementById('multi_table').innerHTML = `<span style="color:var(--danger)">Erreur : ${e.message}. Vérifiez votre connexion ou essayez un jour ouvré BCE.</span>`;
+    clearTimeout(timer);
+    const msg = e.name === 'AbortError'
+      ? 'Délai dépassé — vérifiez votre connexion.'
+      : `${e.message || e}`;
+    if (tblEl) tblEl.innerHTML = `<span style="color:var(--danger)">⚠ ${msg}</span>`;
     showResult('res_multi');
+    console.error('[tableauMultiDevises]', e);
   } finally {
-    if (btn) { btn.innerHTML = 'Afficher le tableau'; btn.disabled = false; }
+    if (btn) { btn.textContent = 'Afficher le tableau'; btn.disabled = false; }
   }
 }
 
