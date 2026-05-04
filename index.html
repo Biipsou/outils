@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes outils</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      background: #f0ece8;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(200, 180, 255, 0.25) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(180, 220, 255, 0.25) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 10%, rgba(255, 210, 180, 0.2) 0%, transparent 40%);
+      gap: 16px;
+      padding: 32px;
+    }
+
+    .greeting {
+      font-size: 13px;
+      font-weight: 600;
+      color: #a89b8c;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-decoration: none;
+      width: 300px;
+      padding: 18px 22px;
+      border-radius: 18px;
+      border: 1.5px solid rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
+      background: rgba(255,255,255,0.85);
+    }
+
+    .card:active { transform: translateY(-1px); }
+
+    .card-budget    { --accent-rgb: 174, 143, 235; }
+    .card-habitudes { --accent-rgb: 130, 200, 170; }
+    .card-calc      { --accent-rgb: 100, 170, 240; }
+
+    .card-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+      background: rgba(var(--accent-rgb), 0.18);
+    }
+
+    .card-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .card-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: #2d2a27;
+    }
+
+    .card-sub {
+      font-size: 11px;
+      font-weight: 500;
+      color: #a89b8c;
+    }
+
+    .card-arrow {
+      margin-left: auto;
+      font-size: 16px;
+      color: rgba(var(--accent-rgb), 1);
+      transition: transform 0.18s ease;
+    }
+
+    .card:hover .card-arrow { transform: translateX(4px); }
+
+    .divider {
+      width: 300px;
+      height: 1px;
+      background: rgba(0,0,0,0.07);
+      margin: 4px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="greeting">✦ Mes outils</div>
+
+  <a href="Budget_5_comptes_1_30_4.html" class="card card-budget">
+    <div class="card-icon">📒</div>
+    <div class="card-text">
+      <span class="card-label">Budget</span>
+      <span class="card-sub">Suivi des 5 comptes</span>
+    </div>
+    <span class="card-arrow">→</span>
+  </a>
+
+  <a href="habitudes_dark.html" class="card card-habitudes">
+    <div class="card-icon">✅</div>
+    <div class="card-text">
+      <span class="card-label">Habitudes</span>
+      <span class="card-sub">Tracker quotidien</span>
+    </div>
+    <span class="card-arrow">→</span>
+  </a>
+
+  <div class="divider"></div>
+
+  <a href="https://budget-58f12.netlify.app/calculateur_financier_DCG" class="card card-calc">
+    <div class="card-icon">🧮</div>
+    <div class="card-text">
+      <span class="card-label">Calculateur DCG</span>
+      <span class="card-sub">Finance · Compta · Fiscal</span>
+    </div>
+    <span class="card-arrow">→</span>
+  </a>
+
+</body>
+</html>
