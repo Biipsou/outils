@@ -2288,8 +2288,15 @@ async function initApp() {
         const s = JSON.parse(rawState);
         if (!s.months)  s.months  = {};
         if (!s.checked) s.checked = {};
-        STATE = migrateState(s);
-      } catch(e) {}
+        const migrated = migrateState(s);
+        STATE = migrated;
+        // Si la migration a modifié quelque chose → resauvegarder dans Firebase immédiatement
+        const migratedJson = JSON.stringify(migrated);
+        if (migratedJson !== rawState) {
+          await dbSet(SK, migratedJson);
+          console.log('[budget] Migration Livret A appliquée et resauvegardée dans Firebase.');
+        }
+      } catch(e) { console.error('[budget] Erreur migration state:', e); }
     }
     if (rawChecks) {
       try { CHECK_STATE = JSON.parse(rawChecks); } catch(e) {}
