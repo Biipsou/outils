@@ -1081,6 +1081,8 @@ function migrateState(s) {
 
   function migrateCharges(charges) {
     if (!Array.isArray(charges)) return charges;
+    // Toujours restaurer isLivretA: true sur livret_a si le flag manque
+    charges.forEach(c => { if (c.id === TARGET && !c.isLivretA) c.isLivretA = true; });
     const hasOld = charges.some(c => OLD_IDS.includes(c.id));
     const hasNew = charges.some(c => c.id === TARGET);
     if (!hasOld) return charges;
@@ -1092,7 +1094,12 @@ function migrateState(s) {
     const filtered = charges.filter(c => !OLD_IDS.includes(c.id));
 
     if (hasNew) {
-      filtered.forEach(c => { if (c.id === TARGET) c.value = total || 280; });
+      filtered.forEach(c => {
+        if (c.id === TARGET) {
+          c.value    = total || c.value || 280;
+          c.isLivretA = true; // restaurer le flag s'il manque
+        }
+      });
     } else {
       const insertIdx = filtered.findIndex(c => c.id === 'epargne_ca');
       const newEntry  = { id: TARGET, label: '📈 Livret A', value: total || 280, isLivretA: true };
@@ -1355,7 +1362,7 @@ function compute() {
   // Livret A — somme de toutes les charges marquées isLivretA
   // (compatible vieilles données Firebase avec 4 sous-IDs et nouvelles avec 1 seul)
   const epargne_ca  = getVal(active.charges, 'epargne_ca');
-  const livretA     = chRows.filter(c => c.isLivretA).reduce((s,c) => s + (c.value||0), 0);
+  const livretA     = chRows.filter(c => c.isLivretA || c.id === 'livret_a').reduce((s,c) => s + (c.value||0), 0);
   const livretTotal = livretA;
   const ogcn_v     = (DEFAULT_CHARGES.find(c => c.id === 'ogcn')   || {}).value || 0;
   const apple_v    = (DEFAULT_CHARGES.find(c => c.id === 'apple')  || {}).value || 0;
@@ -1937,7 +1944,7 @@ function getLivretABreakdown(key) {
   const data = STATE.months[key] ? STATE.months[key] : initMonthData(key);
   const ch   = data.charges.filter(c => !c.divider);
   // Compatible vieilles données (4 sous-IDs) ET nouvelles (1 seul id livret_a)
-  const total      = ch.filter(c => c.isLivretA).reduce((s,c) => s + (c.value||0), 0);
+  const total      = ch.filter(c => c.isLivretA || c.id === 'livret_a').reduce((s,c) => s + (c.value||0), 0);
   const isModified = STATE.months[key] !== undefined;
   return { total, isModified };
 }
@@ -2167,7 +2174,7 @@ function computeMonthForKey(key) {
   const charges = chRows.reduce((s,i) => s + (i.value||0), 0);
   const dispo   = revenus - charges;
   const pockets = computePocketsFromDispo(dispo);
-  const livretA = chRows.filter(c => c.isLivretA).reduce((s,c) => s + (c.value||0), 0);
+  const livretA = chRows.filter(c => c.isLivretA || c.id === 'livret_a').reduce((s,c) => s + (c.value||0), 0);
   return { revenus, charges, dispo, pockets, livretA };
 }
 
