@@ -750,7 +750,7 @@
         <div class="ac-name">Livret A</div>
         <div class="ac-bank">Crédit Agricole · Livret réglementé · 2,4 % net · Plafond 22 950 €</div>
         <div class="ac-amount"><span id="card-livreta">280</span> € <small>/ mois</small></div>
-        <div class="ac-desc">Tout ce qui n'est pas Aide ni Plaisir atterrit ici. Un seul livret, quatre objectifs distincts suivis mentalement : investissement or, tapis de sécurité, projet véhicule, apport logement.</div>
+        <div class="ac-desc">Ton unique épargne liquide. Un seul virement automatique de 280 € le jour du salaire. L'argent travaille à 3 % et tu arbitres mentalement selon tes priorités du moment.</div>
         <div class="ac-usage">
           💡 Tout ce qui ne reste pas sur le CA part automatiquement ici.<br>
           🔒 Disponible à tout moment, exonéré d'impôt. Ne pas toucher sauf usage planifié.<br>
@@ -829,10 +829,10 @@
   <div class="section">
     <div class="section-title">Automatisation — Virements Crédit Agricole</div>
     <div class="tips-list">
-      <div class="tip"><div class="tip-num">1</div><div class="tip-text"><strong>Programme 4 virements automatiques vers le Livret A</strong> le jour J+1 de ton salaire — un par objectif : 50 € aide famille, 90 € tapis de sécurité, 85 € véhicule, 55 € logement. Ça te permet de visualiser exactement combien va pour quel projet.</div></div>
+      <div class="tip"><div class="tip-num">1</div><div class="tip-text"><strong>Programme 1 virement automatique vers le Livret A</strong> le jour J+1 de ton salaire : 280 € en un seul bloc. Simple, propre, automatique.</div></div>
       <div class="tip"><div class="tip-num">2</div><div class="tip-text"><strong>Ton budget Plaisir</strong> reste sur le CA — 130 € alloués mentalement. Utilise ta carte CA pour tes dépenses perso du mois. Quand tu as dépensé 130 €, c'est fini pour le mois.</div></div>
       <div class="tip"><div class="tip-num">3</div><div class="tip-text"><strong>Pour les achats non-alimentaires</strong> (hygiène, ménage, vêtements), utilise le buffer CA. Le suivi se fait via l'appli CA et ses catégories de dépenses.</div></div>
-      <div class="tip"><div class="tip-num">4</div><div class="tip-text"><strong>L'aide familiale (50 €)</strong> est sur le Livret A — c'est toi qui gères. Ta famille peut te faire la demande et tu effectues le transfert depuis le livret. L'argent continue de travailler tant qu'il n'est pas utilisé.</div></div>
+      <div class="tip"><div class="tip-num">4</div><div class="tip-text"><strong>Le Livret A (280 €/mois)</strong> est ton unique épargne liquide. L'argent continue de travailler à 3 % tant qu'il n'est pas utilisé. Tu gères mentalement l'allocation selon tes priorités du moment.</div></div>
     </div>
   </div>
 
@@ -840,8 +840,7 @@
   <div class="section">
     <div class="section-title">Règles d'or pour ne jamais stresser</div>
     <div class="rule-card"><h4>🚦 La règle du feu rouge</h4><p>Ton budget Plaisir est 130 € par mois sur le CA. Quand tu as dépensé 130 €, le mois est terminé. Tu ne puises JAMAIS dans le Livret A pour te faire plaisir. C'est la règle fondamentale.</p></div>
-    <div class="rule-card"><h4>👨‍👩‍👧 La famille passe avant</h4><p>Les 50 € d'aide familiale partent automatiquement sur le Livret A le jour du salaire. Ta famille te fait la demande, tu effectues le virement toi-même. L'argent travaille entre-temps.</p></div>
-    <div class="rule-card"><h4>🤖 Zéro décision manuelle</h4><p>Le jour de ton salaire, 1 seul virement automatique part : 280 € vers le Livret A (aide + tapis + véhicule + logement). Tout le reste reste sur le CA pour tes charges et ton Plaisir.</p></div>
+    <div class="rule-card"><h4>🤖 Zéro décision manuelle</h4><p>Le jour de ton salaire, 1 seul virement automatique part : 280 € vers le Livret A. Tout le reste reste sur le CA pour tes charges et ton Plaisir.</p></div>
     <div class="rule-card"><h4>📅 Le seul moment où tu "gères" ton budget</h4><p>Une fois par mois, 10 minutes : tu vérifies que le virement est parti, que le Livret A grossit, et que tu es à l'aise avec le buffer CA. C'est tout.</p></div>
   </div>
 
@@ -1885,13 +1884,8 @@ function exportExcel() {
 
   rows.push([h('DISTRIBUTION MENSUELLE'), '', '']);
   rows.push(['🎉 Plaisir (budget perso CA)',       money(pp.plaisir), '']);
-  rows.push(['📈 Livret A (total)',               money(c.livretA),  '']);
+  rows.push(['📈 Livret A',                      money(c.livretA),  '']);
   rows.push(['', '', '']);
-  rows.push([h('DÉTAIL LIVRET A'), '', '']);
-  rows.push(['🤝 Aide Familiale',       money(getVal(STATE.charges, 'livret_a_aide')),     '']);
-  rows.push(['🛡️ Tapis de Sécurité',   money(getVal(STATE.charges, 'livret_a_tapis')),    '']);
-  rows.push(['🚗 Projet Véhicule',      money(getVal(STATE.charges, 'livret_a_vehicule')), '']);
-  rows.push(['🏡 Apport Logement',      money(getVal(STATE.charges, 'livret_a_logement')), '']);
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
   ws['!cols'] = [{ wch: 36 }, { wch: 16 }, { wch: 4 }];
@@ -2159,8 +2153,7 @@ function computeMonthForKey(key) {
   const dispo   = revenus - charges;
   const pockets = computePocketsFromDispo(dispo);
   const livretA = chRows.filter(c => c.isLivretA).reduce((s,c) => s + (c.value||0), 0);
-  const aideCA  = chRows.find(c => c.id === 'livret_a_aide')?.value || 0;
-  return { revenus, charges, dispo, pockets, livretA, aideCA };
+  return { revenus, charges, dispo, pockets, livretA };
 }
 
 function renderAnnual() {
@@ -2172,7 +2165,7 @@ function renderAnnual() {
 
   const tapisTarget = getVal(STATE.income, 'salaire') * 3;
 
-  let aideCum=0, plaisirCum=0, livretACum=0, bufferCum=0;
+  let plaisirCum=0, livretACum=0, bufferCum=0;
 
   // ── TABLE ──
   const table = document.getElementById('annual-table');
@@ -2183,7 +2176,6 @@ function renderAnnual() {
       <th>Charges</th>
       <th>À distribuer</th>
       <th>Buffer CA</th>
-      <th style="color:var(--sky)">🤝 Aide</th>
       <th style="color:var(--rose)">🎉 Plaisir</th>
       <th style="color:var(--emerald)">📈 Livret A</th>
     </tr></thead>
@@ -2193,7 +2185,6 @@ function renderAnnual() {
 
   months.forEach(m => {
     const p = m.pockets;
-    aideCum    += m.aideCA || 0;
     plaisirCum += p.plaisir;
     livretACum += m.livretA || 0;
     const mBuf  = m.dispo - p.plaisir;
@@ -2206,7 +2197,6 @@ function renderAnnual() {
       <td class="val-neg">−${Math.round(m.charges)} €</td>
       <td class="${m.dispo>=0?'val-neu':'val-neg'}">${Math.round(m.dispo)} €</td>
       <td class="${mBuf>=0?'val-dim':'val-neg'}">${Math.round(mBuf)} €</td>
-      <td class="val-sky">${Math.round(aideCum)} €</td>
       <td class="val-neg">${Math.round(plaisirCum)} €</td>
       <td class="val-pos">${Math.round(livretACum)} €</td>`;
     tbody.appendChild(tr);
@@ -2224,7 +2214,6 @@ function renderAnnual() {
     <td>−${Math.round(totalCh)} €</td>
     <td>${Math.round(totalDispo)} €</td>
     <td>—</td>
-    <td>${Math.round(aideCum)} €</td>
     <td>${Math.round(plaisirCum)} €</td>
     <td>${Math.round(livretACum)} €</td>`;
   tbody.appendChild(trTot);
@@ -2233,9 +2222,8 @@ function renderAnnual() {
   const cards = document.getElementById('annual-cards');
   cards.innerHTML = '';
   const cardData = [
-    { label:'🤝 Aide',            val: aideCum,    note:'Cumul 12 mois virements famille',            color:'var(--sky)'        },
     { label:'🎉 Plaisir',         val: plaisirCum, note:'Budget perso alloué sur l\'année',           color:'var(--rose)'       },
-    { label:'📈 Livret A',        val: livretACum, note:'Tapis + Véhicule + Logement cumulés', color:'var(--emerald)'  },
+    { label:'📈 Livret A',        val: livretACum, note:'Épargne mensuelle cumulée sur 12 mois',      color:'var(--emerald)'  },
     { label:'🏦 Buffer CA total', val: bufferCum,  note:'Cumul des buffers positifs',                 color:'var(--gold-light)' },
     { label:'💰 Revenus totaux',  val: totalRev,   note:'Salaire + prime sur 12 mois',                color:'var(--emerald)'    },
   ];
