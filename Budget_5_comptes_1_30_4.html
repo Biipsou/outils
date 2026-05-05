@@ -1073,12 +1073,50 @@ function loadState() {
   } catch(e) {}
   return freshState();
 }
+
+/* ── Migration : fusionne les 4 anciens sous-IDs Livret A en un seul ── */
+function migrateState(s) {
+  const OLD_IDS = ['livret_a_aide','livret_a_tapis','livret_a_vehicule','livret_a_logement'];
+  const TARGET  = 'livret_a';
+
+  function migrateCharges(charges) {
+    if (!Array.isArray(charges)) return charges;
+    const hasOld = charges.some(c => OLD_IDS.includes(c.id));
+    const hasNew = charges.some(c => c.id === TARGET);
+    if (!hasOld) return charges;
+
+    const total = charges
+      .filter(c => OLD_IDS.includes(c.id))
+      .reduce((sum, c) => sum + (c.value || 0), 0);
+
+    const filtered = charges.filter(c => !OLD_IDS.includes(c.id));
+
+    if (hasNew) {
+      filtered.forEach(c => { if (c.id === TARGET) c.value = total || 280; });
+    } else {
+      const insertIdx = filtered.findIndex(c => c.id === 'epargne_ca');
+      const newEntry  = { id: TARGET, label: '📈 Livret A', value: total || 280, isLivretA: true };
+      if (insertIdx !== -1) filtered.splice(insertIdx + 1, 0, newEntry);
+      else filtered.push(newEntry);
+    }
+    return filtered;
+  }
+
+  s.charges = migrateCharges(s.charges);
+  if (s.months) {
+    Object.values(s.months).forEach(m => {
+      if (m && m.charges) m.charges = migrateCharges(m.charges);
+    });
+  }
+  return s;
+}
+
 function saveState() {
   try { localStorage.setItem(SK, JSON.stringify(STATE)); } catch(e) {}
   dbSet(SK, JSON.stringify(STATE));
 }
 
-let STATE = loadState();
+let STATE = migrateState(loadState());
 
 /* ── Échéances de fin (charge id → dernier mois actif) ── */
 const CHARGE_ENDS = {
@@ -1315,14 +1353,9 @@ function compute() {
   const freedThisMonth = getFreedThisMonth();
 
   // Livret A — montant total unique
-  const epargne_ca       = getVal(active.charges, 'epargne_ca');
-  const livretA          = getVal(active.charges, 'livret_a');
-  const livretA_aide     = 0;
-  const livretA_tapis    = 0;
-  const livretA_vehicule = 0;
-  const livretA_logement = 0;
-  const livretA_impots   = 0;
-  const livretTotal      = livretA;
+  const epargne_ca  = getVal(active.charges, 'epargne_ca');
+  const livretA     = getVal(active.charges, 'livret_a');
+  const livretTotal = livretA;
   const ogcn_v     = (DEFAULT_CHARGES.find(c => c.id === 'ogcn')   || {}).value || 0;
   const apple_v    = (DEFAULT_CHARGES.find(c => c.id === 'apple')  || {}).value || 0;
   const cperso_v   = (DEFAULT_CHARGES.find(c => c.id === 'cperso') || {}).value || 0;
@@ -1359,7 +1392,7 @@ function compute() {
   }
 
   return { revenus, tickets, charges, dispo, buffer: pockets.buffer, epargne_ca,
-           livretA, livretTotal, livretA_aide, livretA_tapis, livretA_vehicule, livretA_logement, livretA_impots,
+           livretA, livretTotal,
            tkRestos, tkBoul, tkCourses,
            POCKETS: pockets, TOTAL_POCKETS: pockets.total, refPockets, phasePockets,
            p2_freed, p2_livreta,
@@ -1802,11 +1835,9 @@ function renderAll() {
   set('p1-buffer',  Math.round(ppBuffer) + ' €');
   set('p1-dispo',   'Disponible : ' + fmt(c.dispo));
 
-  // Tapis target = 3 mois de salaire (affiché dans carte Livret A)
-  const tapisTarget = getVal(getActiveData().income, 'salaire') * 3;
-  set('tapis-target-text', Math.round(tapisTarget) + ' €');
-
-  // TR
+  // Phase 1
+  set('p1-plaisir', pp.plaisir + ' €');
+  set('p1-livreta', Math.round(c.livretA) + ' €');
   const tk = c.tickets;
   const pR = tk > 0 ? c.tkRestos  / tk * 100 : 0;
   const pC = tk > 0 ? c.tkCourses / tk * 100 : 0;
@@ -1821,7 +1852,6 @@ function renderAll() {
   set('tr-td-total',    fmtN(tk) + ' €');
 
   // Phase 1
-  set('p1-aide',    Math.round(c.livretA_aide) + ' €');
   set('p1-plaisir', pp.plaisir + ' €');
   set('p1-livreta', Math.round(c.livretA) + ' €');
 
@@ -2258,7 +2288,7 @@ async function initApp() {
         const s = JSON.parse(rawState);
         if (!s.months)  s.months  = {};
         if (!s.checked) s.checked = {};
-        STATE = s;
+        STATE = migrateState(s);
       } catch(e) {}
     }
     if (rawChecks) {
