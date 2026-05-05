@@ -1352,9 +1352,10 @@ function compute() {
   }
   const freedThisMonth = getFreedThisMonth();
 
-  // Livret A — montant total unique
+  // Livret A — somme de toutes les charges marquées isLivretA
+  // (compatible vieilles données Firebase avec 4 sous-IDs et nouvelles avec 1 seul)
   const epargne_ca  = getVal(active.charges, 'epargne_ca');
-  const livretA     = getVal(active.charges, 'livret_a');
+  const livretA     = chRows.filter(c => c.isLivretA).reduce((s,c) => s + (c.value||0), 0);
   const livretTotal = livretA;
   const ogcn_v     = (DEFAULT_CHARGES.find(c => c.id === 'ogcn')   || {}).value || 0;
   const apple_v    = (DEFAULT_CHARGES.find(c => c.id === 'apple')  || {}).value || 0;
@@ -1835,9 +1836,6 @@ function renderAll() {
   set('p1-buffer',  Math.round(ppBuffer) + ' €');
   set('p1-dispo',   'Disponible : ' + fmt(c.dispo));
 
-  // Phase 1
-  set('p1-plaisir', pp.plaisir + ' €');
-  set('p1-livreta', Math.round(c.livretA) + ' €');
   const tk = c.tickets;
   const pR = tk > 0 ? c.tkRestos  / tk * 100 : 0;
   const pC = tk > 0 ? c.tkCourses / tk * 100 : 0;
@@ -1936,18 +1934,12 @@ function exportPDF() {
    RENDER PRÉVISIONNEL LIVRET A
 ════════════════════════════════════════ */
 function getLivretABreakdown(key) {
-  // Retourne le montant Livret A total pour un mois donné
   const data = STATE.months[key] ? STATE.months[key] : initMonthData(key);
-  const ch = data.charges;
-  const get = id => { const r = ch.find(c => c.id === id); return r ? (r.value || 0) : 0; };
-  const total    = get('livret_a');
-  const aide     = 0;
-  const tapis    = 0;
-  const vehicule = 0;
-  const logement = 0;
-  const impots   = 0;
+  const ch   = data.charges.filter(c => !c.divider);
+  // Compatible vieilles données (4 sous-IDs) ET nouvelles (1 seul id livret_a)
+  const total      = ch.filter(c => c.isLivretA).reduce((s,c) => s + (c.value||0), 0);
   const isModified = STATE.months[key] !== undefined;
-  return { aide, tapis, vehicule, logement, impots, total, isModified };
+  return { total, isModified };
 }
 
 // Mois de départ par année (2026 → avril car pas commencé avant)
@@ -2005,31 +1997,23 @@ function renderPrevisionnel() {
 
   // ── Calcul mois par mois ──
   let solde = getYearStartBalance(year);
-  let cumAide = 0, cumTapis = 0, cumVehicule = 0, cumLogement = 0;
+  let cumAide=0, cumTapis=0, cumVehicule=0, cumLogement=0;
   let totalVersements = 0, totalInterets = 0;
 
   const rows = KEYS.map(({ idx, key }) => {
     const b = getLivretABreakdown(key);
     const interets = (solde + b.total / 2) * (0.024 / 12);
     solde         += b.total + interets;
-    cumAide       += b.aide;
-    cumTapis      += b.tapis;
-    cumVehicule   += b.vehicule;
-    cumLogement   += b.logement;
     totalVersements += b.total;
     totalInterets   += interets;
     return {
       label: SHORT[idx], key, isCurrentMonth: key === nowKey,
-      ...b, interets, soldeFin: solde,
-      cumAide, cumTapis, cumVehicule, cumLogement
+      ...b, interets, soldeFin: solde
     };
   });
 
   const soldeFin = solde;
   const nbMois   = KEYS.length;
-
-  // Tapis cumulatif SANS intérêts (toutes années confondues jusqu'à year)
-  const tapisCumTotal = getCumulativeTapisContributions(year);
 
   // ── HEADER ──
   const header = document.getElementById('prev-header');
@@ -2110,7 +2094,8 @@ function renderPrevisionnel() {
 
   const yearStartBal = getYearStartBalance(year);
   const objs = [
-    { label:'📈 Total épargné', val: cumAide + cumTapis + cumVehicule + cumLogement, color:'var(--emerald)', note: Math.round((cumAide + cumTapis + cumVehicule + cumLogement) / nbMois) + ' €/mois en moyenne' },
+    { label: '📈 Total épargné Livret A', val: totalVersements, color: 'var(--emerald)',
+      note: Math.round(totalVersements / Math.max(1, nbMois)) + ' €/mois en moyenne · ' + nbMois + ' mois' },
   ];
 
   objs.forEach(o => {
