@@ -1081,10 +1081,21 @@ function migrateState(s) {
 
   function migrateCharges(charges) {
     if (!Array.isArray(charges)) return charges;
-    // Toujours restaurer isLivretA: true sur livret_a si le flag manque
+    // Restaurer isLivretA: true sur livret_a si le flag manque
     charges.forEach(c => { if (c.id === TARGET && !c.isLivretA) c.isLivretA = true; });
     const hasOld = charges.some(c => OLD_IDS.includes(c.id));
     const hasNew = charges.some(c => c.id === TARGET);
+    // Cas intermédiaire : ni vieux IDs ni nouveau → ajouter depuis DEFAULT_CHARGES
+    if (!hasOld && !hasNew) {
+      const def = DEFAULT_CHARGES.find(c => c.id === TARGET);
+      if (def) {
+        const entry = JSON.parse(JSON.stringify(def));
+        const insertIdx = charges.findIndex(c => c.id === 'epargne_ca');
+        if (insertIdx !== -1) charges.splice(insertIdx + 1, 0, entry);
+        else charges.push(entry);
+      }
+      return charges;
+    }
     if (!hasOld) return charges;
 
     const total = charges
@@ -1359,10 +1370,12 @@ function compute() {
   }
   const freedThisMonth = getFreedThisMonth();
 
-  // Livret A — somme de toutes les charges marquées isLivretA
-  // (compatible vieilles données Firebase avec 4 sous-IDs et nouvelles avec 1 seul)
+  // Livret A — robuste avec fallback
   const epargne_ca  = getVal(active.charges, 'epargne_ca');
-  const livretA     = chRows.filter(c => c.isLivretA || c.id === 'livret_a').reduce((s,c) => s + (c.value||0), 0);
+  const LA_FILTER   = c => c.isLivretA || c.id === 'livret_a';
+  const livretA     = chRows.filter(LA_FILTER).reduce((s,c) => s+(c.value||0), 0)
+                   || (STATE.charges||[]).filter(c=>!c.divider&&LA_FILTER(c)).reduce((s,c)=>s+(c.value||0),0)
+                   || DEFAULT_CHARGES.filter(LA_FILTER).reduce((s,c)=>s+(c.value||0),0);
   const livretTotal = livretA;
   const ogcn_v     = (DEFAULT_CHARGES.find(c => c.id === 'ogcn')   || {}).value || 0;
   const apple_v    = (DEFAULT_CHARGES.find(c => c.id === 'apple')  || {}).value || 0;
@@ -1941,11 +1954,25 @@ function exportPDF() {
    RENDER PRÉVISIONNEL LIVRET A
 ════════════════════════════════════════ */
 function getLivretABreakdown(key) {
-  const data = STATE.months[key] ? STATE.months[key] : initMonthData(key);
-  const ch   = data.charges.filter(c => !c.divider);
-  // Compatible vieilles données (4 sous-IDs) ET nouvelles (1 seul id livret_a)
-  const total      = ch.filter(c => c.isLivretA || c.id === 'livret_a').reduce((s,c) => s + (c.value||0), 0);
   const isModified = STATE.months[key] !== undefined;
+  const data = STATE.months[key] ? STATE.months[key] : initMonthData(key);
+  const ch   = (data.charges || []).filter(c => !c.divider);
+  const LA_FILTER = c => c.isLivretA || c.id === 'livret_a';
+
+  // Essai 1 : données du mois (sauvegardé ou initialisé)
+  let total = ch.filter(LA_FILTER).reduce((s,c) => s + (c.value||0), 0);
+
+  // Fallback 2 : charges de base STATE
+  if (!total) {
+    total = (STATE.charges || []).filter(c => !c.divider && LA_FILTER(c))
+                                 .reduce((s,c) => s + (c.value||0), 0);
+  }
+
+  // Fallback 3 : DEFAULT_CHARGES (toujours propre)
+  if (!total) {
+    total = DEFAULT_CHARGES.filter(LA_FILTER).reduce((s,c) => s + (c.value||0), 0);
+  }
+
   return { total, isModified };
 }
 
@@ -2174,7 +2201,10 @@ function computeMonthForKey(key) {
   const charges = chRows.reduce((s,i) => s + (i.value||0), 0);
   const dispo   = revenus - charges;
   const pockets = computePocketsFromDispo(dispo);
-  const livretA = chRows.filter(c => c.isLivretA || c.id === 'livret_a').reduce((s,c) => s + (c.value||0), 0);
+  const _LAf    = c => c.isLivretA || c.id === 'livret_a';
+  const livretA = chRows.filter(_LAf).reduce((s,c) => s+(c.value||0), 0)
+               || (STATE.charges||[]).filter(c=>!c.divider&&_LAf(c)).reduce((s,c)=>s+(c.value||0),0)
+               || DEFAULT_CHARGES.filter(_LAf).reduce((s,c)=>s+(c.value||0),0);
   return { revenus, charges, dispo, pockets, livretA };
 }
 
