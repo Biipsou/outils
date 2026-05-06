@@ -4,72 +4,78 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mes outils · Bips</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <style>
     :root {
-      --ink:       #e2e2de;
-      --ink-muted: #666662;
-      --ink-faint: #3e3e3a;
-      --rule:      #2c2c28;
-      --gold:      #c8a040;
-      --green:     #5c8f60;
-      --blue:      #6496c8;
-      --bg:        #111110;
+      --ink:      #e2e2de;
+      --ink-muted:#666662;
+      --ink-faint:#3e3e3a;
+      --rule:     #2c2c28;
+      --gold:     #c8a040;
+      --green:    #5c8f60;
+      --blue:     #6496c8;
+      --danger:   #c84040;
+      --bg:       #111110;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       min-height: 100vh;
       background: var(--bg);
       background-image:
-        radial-gradient(ellipse 70% 50% at 15% 15%, rgba(200,160,64,0.07) 0%, transparent 65%),
-        radial-gradient(ellipse 60% 50% at 85% 80%, rgba(100,148,200,0.08) 0%, transparent 65%),
-        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(92,143,96,0.05) 0%, transparent 70%);
+        radial-gradient(ellipse 70% 50% at 15% 15%, rgba(200,160,64,.07) 0%, transparent 65%),
+        radial-gradient(ellipse 60% 50% at 85% 80%, rgba(100,148,200,.08) 0%, transparent 65%);
       color: var(--ink);
       font-family: 'Jost', sans-serif;
       font-weight: 300;
-      font-size: 13px;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 48px 24px;
     }
-    /* LOADING */
-    #loading-overlay {
-      position: fixed; inset: 0; z-index: 9999;
-      background: var(--bg);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 28px;
+
+    .wrapper { width: 100%; max-width: 380px; }
+
+    /* ── HEADER ── */
+    .site-header { padding-bottom: 36px; border-bottom: 1px solid var(--rule); margin-bottom: 36px; }
+    .site-eyebrow { font-size: 9px; letter-spacing: .45em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 14px; }
+    .site-title { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300; line-height: 1; color: var(--ink); }
+    .site-title em { font-style: italic; color: var(--gold); }
+    .site-sub { margin-top: 10px; font-size: 11px; color: var(--ink-muted); letter-spacing: .05em; }
+
+    /* ── LOGIN SCREEN ── */
+    #screen-login { display: flex; flex-direction: column; gap: 20px; }
+    #btn-google-signin {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      background: none; border: 1px solid rgba(200,160,64,.3);
+      color: var(--gold); cursor: pointer;
+      font-family: 'Jost', sans-serif; font-size: 12px;
+      font-weight: 400; letter-spacing: .12em; text-transform: uppercase;
+      padding: 14px 28px; border-radius: 4px; width: 100%;
+      transition: border-color .2s, background .2s;
+    }
+    #btn-google-signin:hover { border-color: var(--gold); background: rgba(200,160,64,.06); }
+    #btn-google-signin:disabled { opacity: .4; cursor: default; }
+    #btn-google-signin svg { width: 16px; height: 16px; flex-shrink: 0; }
+    #msg-access {
+      display: none; text-align: center;
+      font-size: 13px; color: var(--danger);
+      letter-spacing: .05em;
     }
     .lo-spinner {
-      width: 36px; height: 36px;
-      border: 1.5px solid rgba(200,160,64,0.15);
+      width: 28px; height: 28px; margin: 0 auto;
+      border: 1.5px solid rgba(200,160,64,.15);
       border-top-color: var(--gold);
       border-radius: 50%;
       animation: spin 1s linear infinite;
+      display: none;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .lo-label { font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--ink-muted); }
-    #btn-signin-idx {
-      display: none;
-      background: none; border: 1px solid rgba(200,160,64,0.3);
-      color: var(--gold); cursor: pointer;
-      font-family: 'Jost', sans-serif; font-size: 11px;
-      letter-spacing: 0.15em; text-transform: uppercase;
-      padding: 10px 28px; border-radius: 4px;
-      transition: border-color .2s, background .2s;
-    }
-    #btn-signin-idx:hover { border-color: var(--gold); background: rgba(200,160,64,0.07); }
-    /* WRAPPER */
-    .wrapper { width: 100%; max-width: 380px; display: flex; flex-direction: column; }
-    /* HEADER */
-    .site-header { padding-bottom: 36px; border-bottom: 1px solid var(--rule); margin-bottom: 36px; }
-    .site-eyebrow { font-size: 9px; letter-spacing: 0.45em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 14px; font-weight: 400; }
-    .site-title { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300; line-height: 1; color: var(--ink); }
-    .site-title em { font-style: italic; color: var(--gold); }
-    .site-sub { margin-top: 10px; font-size: 11px; color: var(--ink-muted); letter-spacing: 0.05em; }
-    /* CARDS */
+
+    /* ── APP CARDS ── */
+    #screen-app { display: none; flex-direction: column; gap: 0; }
     .card {
       display: flex; align-items: center; gap: 18px;
       text-decoration: none; padding: 20px 4px;
@@ -83,44 +89,58 @@
       width: 40px; height: 40px; border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
       font-size: 19px; flex-shrink: 0;
-      border: 1px solid var(--rule); background: rgba(255,255,255,0.04);
+      border: 1px solid var(--rule); background: rgba(255,255,255,.04);
     }
-    .card-budget    .card-icon { border-color: rgba(200,160,64,0.25); background: rgba(200,160,64,0.06); }
-    .card-habitudes .card-icon { border-color: rgba(92,143,96,0.25);  background: rgba(92,143,96,0.06); }
-    .card-calc      .card-icon { border-color: rgba(100,150,200,0.25); background: rgba(100,150,200,0.06); }
+    .card-budget    .card-icon { border-color: rgba(200,160,64,.25); background: rgba(200,160,64,.06); }
+    .card-habitudes .card-icon { border-color: rgba(92,143,96,.25);  background: rgba(92,143,96,.06); }
+    .card-calc      .card-icon { border-color: rgba(100,150,200,.25); background: rgba(100,150,200,.06); }
     .card-text { flex: 1; display: flex; flex-direction: column; gap: 3px; }
     .card-label { font-size: 14px; font-weight: 400; color: var(--ink); }
-    .card-sub { font-size: 10px; color: var(--ink-muted); letter-spacing: 0.05em; }
-    .card-arrow { font-size: 14px; color: var(--ink-muted); opacity: 0; transition: opacity .2s, transform .2s; }
+    .card-sub { font-size: 10px; color: var(--ink-muted); letter-spacing: .05em; }
+    .card-arrow { font-size: 14px; opacity: 0; transition: opacity .2s, transform .2s; }
     .card-budget    .card-arrow { color: var(--gold); }
     .card-habitudes .card-arrow { color: var(--green); }
     .card-calc      .card-arrow { color: var(--blue); }
-    /* FOOTER */
+
+    /* ── FOOTER ── */
     .site-footer { margin-top: 32px; display: flex; justify-content: space-between; align-items: center; }
-    #auth-badge-idx { display: flex; align-items: center; gap: 8px; }
-    #auth-badge-idx img { width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--rule); }
-    #auth-badge-idx span { font-size: 10px; color: var(--ink-muted); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: 0.05em; }
-    #btn-signout-idx { background: none; border: none; cursor: pointer; font-size: 10px; color: var(--ink-faint); letter-spacing: 0.1em; font-family: 'Jost', sans-serif; }
-    #btn-signout-idx:hover { color: var(--ink-muted); }
+    #auth-user { font-size: 10px; color: var(--ink-faint); letter-spacing: .05em; display: none; }
+    #btn-signout {
+      display: none; background: none; border: none; cursor: pointer;
+      font-size: 10px; color: var(--ink-faint);
+      font-family: 'Jost', sans-serif; letter-spacing: .08em;
+    }
+    #btn-signout:hover { color: var(--ink-muted); }
+
     @media (max-width: 420px) { .site-title { font-size: 38px; } }
   </style>
 </head>
 <body>
-
-<div id="loading-overlay">
-  <div class="lo-spinner"></div>
-  <div class="lo-label">Chargement…</div>
-  <button id="btn-signin-idx">Connexion Google</button>
-</div>
-
 <div class="wrapper">
+
   <header class="site-header">
     <div class="site-eyebrow">✦ Espace personnel</div>
     <h1 class="site-title">Mes<br><em>outils.</em></h1>
     <div class="site-sub">Budget · Habitudes · Calculateur DCG</div>
   </header>
 
-  <nav>
+  <!-- ÉCRAN CONNEXION -->
+  <div id="screen-login">
+    <div class="lo-spinner" id="spinner"></div>
+    <button id="btn-google-signin">
+      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 7.9 2.9l5.7-5.7C34.5 6.5 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/>
+        <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 12 24 12c3.1 0 5.8 1.1 7.9 2.9l5.7-5.7C34.5 6.5 29.5 4 24 4 16.3 4 9.7 8.4 6.3 14.7z"/>
+        <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35.4 26.8 36 24 36c-5.2 0-9.6-3.3-11.3-8H6.1C9.5 35.5 16.3 44 24 44z"/>
+        <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.3 4.1-4.2 5.5l6.2 5.2C41.6 36.1 44 30.5 44 24c0-1.3-.1-2.6-.4-3.9z"/>
+      </svg>
+      Connexion avec Google
+    </button>
+    <div id="msg-access">Accès refusé.</div>
+  </div>
+
+  <!-- ÉCRAN APP -->
+  <div id="screen-app">
     <a href="Budget_5_comptes_1_30_4.html" class="card card-budget">
       <div class="card-icon">📒</div>
       <div class="card-text">
@@ -145,50 +165,82 @@
       </div>
       <span class="card-arrow">→</span>
     </a>
-  </nav>
+  </div>
 
   <footer class="site-footer">
-    <div id="auth-badge-idx"></div>
-    <button id="btn-signout-idx" style="display:none">Déconnexion</button>
+    <span id="auth-user"></span>
+    <button id="btn-signout">Déconnexion</button>
   </footer>
+
 </div>
-
 <script>
-(function() {
-  const CFG = {
-    apiKey: "AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk",
-    authDomain: "budget-58f12.firebaseapp.com",
-    projectId: "budget-58f12",
-    storageBucket: "budget-58f12.firebasestorage.app",
-    messagingSenderId: "327922790999",
-    appId: "1:327922790999:web:076a60cf85287d3d38e912"
-  };
-  const app  = firebase.apps.find(a => a.name === 'idx') || firebase.initializeApp(CFG, 'idx');
-  const auth = firebase.auth(app);
-  const overlay   = document.getElementById('loading-overlay');
-  const btnSignin = document.getElementById('btn-signin-idx');
-  const btnSignout= document.getElementById('btn-signout-idx');
-  const badge     = document.getElementById('auth-badge-idx');
+// ── REMPLACE PAR TON ADRESSE GMAIL ───────────────────────────────────────────
+const ALLOWED_EMAIL = 'ton.adresse@gmail.com';
+// ─────────────────────────────────────────────────────────────────────────────
 
-  auth.onAuthStateChanged(function(user) {
-    if (user) {
-      overlay.style.display = 'none';
-      badge.innerHTML = user.photoURL
-        ? '<img src="' + user.photoURL + '" alt=""> <span>' + (user.displayName || user.email) + '</span>'
-        : '<span>' + (user.displayName || user.email) + '</span>';
-      btnSignout.style.display = 'block';
+const FIREBASE_CONFIG = {
+  apiKey:            'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',
+  authDomain:        'budget-58f12.firebaseapp.com',
+  projectId:         'budget-58f12',
+  storageBucket:     'budget-58f12.firebasestorage.app',
+  messagingSenderId: '327922790999',
+  appId:             '1:327922790999:web:076a60cf85287d3d38e912'
+};
+
+const app  = firebase.apps.find(a => a.name === 'idx') || firebase.initializeApp(FIREBASE_CONFIG, 'idx');
+const auth = firebase.auth(app);
+
+const screenLogin  = document.getElementById('screen-login');
+const screenApp    = document.getElementById('screen-app');
+const btnSignin    = document.getElementById('btn-google-signin');
+const msgAccess    = document.getElementById('msg-access');
+const spinner      = document.getElementById('spinner');
+const authUser     = document.getElementById('auth-user');
+const btnSignout   = document.getElementById('btn-signout');
+
+function showApp(user) {
+  screenLogin.style.display  = 'none';
+  screenApp.style.display    = 'flex';
+  authUser.style.display     = 'block';
+  btnSignout.style.display   = 'block';
+  authUser.textContent       = user.email;
+}
+
+function showLogin(denied) {
+  spinner.style.display      = 'none';
+  btnSignin.style.display    = 'flex';
+  screenApp.style.display    = 'none';
+  authUser.style.display     = 'none';
+  btnSignout.style.display   = 'none';
+  msgAccess.style.display    = denied ? 'block' : 'none';
+}
+
+auth.onAuthStateChanged(function(user) {
+  if (user) {
+    if (user.email === ALLOWED_EMAIL) {
+      showApp(user);
     } else {
-      btnSignin.style.display = 'block';
-      btnSignin.onclick = function() {
-        btnSignin.style.display = 'none';
-        auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function() {
-          btnSignin.style.display = 'block';
-        });
-      };
+      // Mauvais compte → déconnexion immédiate + message
+      auth.signOut();
+      showLogin(true);
     }
+  } else {
+    showLogin(false);
+  }
+});
+
+btnSignin.onclick = function() {
+  btnSignin.style.display = 'none';
+  msgAccess.style.display = 'none';
+  spinner.style.display   = 'block';
+  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function() {
+    showLogin(false);
   });
-  btnSignout.onclick = function() { auth.signOut(); };
-})();
+};
+
+btnSignout.onclick = function() {
+  auth.signOut();
+};
 </script>
 </body>
 </html>

@@ -213,12 +213,12 @@
     transition: color 0.15s;
   }
   #btn-signout:hover { color: var(--rose); }
-  #btn-signin {
+  #btn-signin-overlay {
     background: none; border: 1px solid rgba(201,169,110,0.3); color: var(--gold);
     cursor: pointer; font-family: 'DM Mono', monospace; font-size: 10px;
     padding: 4px 10px; border-radius: 8px; transition: all 0.15s;
   }
-  #btn-signin:hover { background: rgba(201,169,110,0.08); border-color: var(--gold); }
+  #btn-signin-overlay:hover { background: rgba(201,169,110,0.08); border-color: var(--gold); }
   #loading-overlay {
     position: fixed; inset: 0; background: var(--bg);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -648,7 +648,7 @@
 
 <div id="loading-overlay">
   <p>CHARGEMENT DES DONNÉES…</p>
-  <button id="btn-signin" style="display:none">Se connecter avec Google</button>
+  <button id="btn-signin-overlay" style="display:none">Se connecter avec Google</button>
 </div>
 <a id="btn-retour" href="index.html">← Accueil</a>
 <div id="auth-badge" style="display:none"></div>
@@ -900,9 +900,7 @@ function updateAuthBadge(user) {
       '<button id="btn-signout" title="Déconnexion">✕</button>';
     document.getElementById('btn-signout').onclick = () => firebase.auth().signOut();
   } else {
-    badge.innerHTML = '<button id="btn-signin">Connexion Google</button>';
-    document.getElementById('btn-signin').onclick = () =>
-      firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+    badge.innerHTML = '<span style="color:var(--muted);font-size:11px;">Non connecté</span>';
   }
 }
 
@@ -917,8 +915,7 @@ async function initFirebase() {
         resolve(true);
       } else {
         updateAuthBadge(null);
-        // Affiche le bouton de connexion dans l'overlay
-        const btnOverlay = document.getElementById('btn-signin');
+        const btnOverlay = document.getElementById('btn-signin-overlay');
         if (btnOverlay) {
           btnOverlay.style.display = 'block';
           btnOverlay.onclick = async () => {
@@ -926,11 +923,10 @@ async function initFirebase() {
             try {
               await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
             } catch(e) {
-              btnOverlay.style.display = 'block'; // réafficher si annulé ou erreur
+              btnOverlay.style.display = 'block';
             }
           };
         }
-        // Pas de timeout — chargement infini jusqu'à connexion Google
       }
     });
   });
@@ -2188,8 +2184,6 @@ function renderAnnual() {
 ════════════════════════════════════════ */
 async function initApp() {
   const overlay = document.getElementById('loading-overlay');
-
-  // Tentative de connexion Firebase
   const firebaseOk = await initFirebase();
 
   if (firebaseOk && _uid) {
