@@ -139,22 +139,6 @@
   .account-card .ac-amount small { font-size: 14px; font-weight: 300; }
   .account-card .ac-desc { font-size: 12px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
   .account-card .ac-usage { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 12px; line-height: 1.6; color: var(--text); opacity: 0.75; }
-
-  .ac-aide { background: linear-gradient(135deg, #1a1f30, #141827); border-color: rgba(96,180,240,0.15); }
-  .ac-aide::before { background: linear-gradient(90deg, transparent, rgba(96,180,240,0.3), transparent); }
-  .ac-aide .ac-amount { color: var(--sky); } .ac-aide .ac-name { color: #90cbf5; }
-  .ac-invest { background: linear-gradient(135deg, #1a1f2a, #141820); border-color: rgba(167,139,250,0.15); }
-  .ac-invest::before { background: linear-gradient(90deg, transparent, rgba(167,139,250,0.3), transparent); }
-  .ac-invest .ac-amount { color: var(--lavender); } .ac-invest .ac-name { color: #c4b0ff; }
-  .ac-epargne { background: linear-gradient(135deg, #1a2420, #141c1a); border-color: rgba(74,222,154,0.15); }
-  .ac-epargne::before { background: linear-gradient(90deg, transparent, rgba(74,222,154,0.3), transparent); }
-  .ac-epargne .ac-amount { color: var(--emerald); } .ac-epargne .ac-name { color: #7ee8b5; }
-  .ac-plaisir { background: linear-gradient(135deg, #211a1a, #1a1414); border-color: rgba(240,112,112,0.15); }
-  .ac-plaisir::before { background: linear-gradient(90deg, transparent, rgba(240,112,112,0.3), transparent); }
-  .ac-plaisir .ac-amount { color: var(--rose); } .ac-plaisir .ac-name { color: #f5a0a0; }
-  .ac-tapis { background: linear-gradient(135deg, #201e13, #181610); border-color: rgba(251,191,36,0.15); }
-  .ac-tapis::before { background: linear-gradient(90deg, transparent, rgba(251,191,36,0.3), transparent); }
-  .ac-tapis .ac-amount { color: var(--amber); } .ac-tapis .ac-name { color: #fdd16a; }
   .ac-ca { background: linear-gradient(135deg, #171a21, #111419); border-color: rgba(201,169,110,0.2); }
   .ac-ca::before { background: linear-gradient(90deg, transparent, rgba(201,169,110,0.4), transparent); }
   .ac-ca .ac-amount { color: var(--gold-light); } .ac-ca .ac-name { color: var(--gold-light); }
@@ -181,16 +165,9 @@
   .timeline::before { content: ''; position: absolute; left: 10px; top: 8px; bottom: 0; width: 1px; background: linear-gradient(to bottom, var(--gold), var(--dim) 80%, transparent); }
   .phase { position: relative; margin-bottom: 32px; }
   .phase::before { content: ''; position: absolute; left: -26px; top: 6px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--gold); background: var(--bg); }
-  .phase-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
-  .phase-tag { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); background: rgba(201,169,110,0.1); border: 1px solid rgba(201,169,110,0.2); padding: 3px 10px; border-radius: 20px; }
-  .phase-title { font-size: 15px; font-weight: 500; color: var(--text); }
-  .phase-gain { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--emerald); margin-left: auto; }
-  .phase-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
-  .phase-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px; }
   .phase-row .label { color: var(--muted); }
   .phase-row .val { font-family: 'DM Mono', monospace; font-weight: 500; }
   .phase-row .delta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--emerald); margin-left: 6px; }
-  .phase-divider { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
 
   /* TIPS */
   .tips-list { display: flex; flex-direction: column; gap: 12px; }
@@ -490,9 +467,6 @@
   .val-pos { color: var(--emerald); }
   .val-neg { color: var(--rose); }
   .val-neu { color: var(--gold-light); }
-  .val-sky { color: var(--sky); }
-  .val-lav { color: var(--lavender); }
-  .val-amb { color: var(--amber); }
   .val-dim { color: var(--muted); }
 
   .annual-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 40px; }
@@ -672,7 +646,6 @@
 </head>
 <body>
 
-
 <div id="loading-overlay">
   <p>CHARGEMENT DES DONNÉES…</p>
   <button id="btn-signin" style="display:none">Se connecter avec Google</button>
@@ -739,7 +712,6 @@
         <div class="ac-usage">
           🎉 <strong>Plaisir :</strong> ton budget libre mensuel. Quand il est épuisé, le mois est terminé — on ne puise jamais ailleurs.<br>
           📌 Le buffer couvre les courses non-alimentaires, hygiène, ménage, vêtements et les variations d'électricité/eau.<br>
-          🤝 <strong>Aide familiale (50 €)</strong> : part automatiquement sur le Livret A — ta famille peut retirer quand besoin.
         </div>
       </div>
     </div>
@@ -1050,8 +1022,6 @@ function computePocketsFromDispo(dispo) {
   return { ...p, buffer, total: sumPockets };
 }
 
-function totalPockets(p) { return Object.values(p).reduce((a,b) => a+b, 0); }
-
 function freshState() {
   return {
     income:  JSON.parse(JSON.stringify(DEFAULT_INCOME)),
@@ -1142,9 +1112,6 @@ const CHARGE_ENDS = {
   apple: { year: 2026, month: 11 }, // dernier prélèvement nov. 2026
 };
 
-/* ── Dates de début (charge id → premier mois actif) ── */
-const CHARGE_STARTS = {};
-
 /* ── Mois et année actifs ── */
 const _now = new Date();
 let currentMonth = _now.getFullYear() + '-' + String(_now.getMonth() + 1).padStart(2, '0');
@@ -1162,14 +1129,6 @@ function isChargeExpired(id, year, month) {
   if (!end) return false;
   if (year > end.year) return true;
   if (year === end.year && month > end.month) return true;
-  return false;
-}
-
-function isChargeNotStartedYet(id, year, month) {
-  const start = CHARGE_STARTS[id];
-  if (!start) return false;
-  if (year < start.year) return true;
-  if (year === start.year && month < start.month) return true;
   return false;
 }
 
@@ -1192,7 +1151,7 @@ function initMonthData(key) {
   data.charges = data.charges.filter(c => {
     if (c.divider) return true;
     if (isChargeExpired(c.id, year, month)) return false;
-    if (isChargeNotStartedYet(c.id, year, month)) return false;
+    if (false) return false;
     return true;
   });
   cleanDividers(data.charges);
@@ -1339,36 +1298,11 @@ function compute() {
 
   // Pockets calculés en temps réel depuis le dispo, ratios fixes, arrondi ×5
   const pockets = computePocketsFromDispo(dispo);
-  const POCKETS = pockets;
-  const TOTAL_POCKETS = pockets.total;
   const buffer  = pockets.buffer;
 
   // TR
   const tkRestos  = 76;
-  const tkBoul    = 0;
-  const tkCourses = Math.max(0, tickets - tkRestos - tkBoul);
-
-  // Helper : arrondi au multiple de 5 le plus proche
-  const r5 = n => Math.round(n / 5) * 5;
-
-  // Crédits libérés ce mois-ci → montant ajouté directement à l'épargne Revolut
-  function getFreedThisMonth() {
-    if (!currentMonth || currentMonth === 'annual') return 0;
-    const [y, m] = currentMonth.split('-').map(Number);
-    let freed = 0;
-    Object.entries(CHARGE_ENDS).forEach(([id, end]) => {
-      const prevY = m === 1 ? y - 1 : y;
-      const prevM = m === 1 ? 12 : m - 1;
-      const wasActive = !isChargeExpired(id, prevY, prevM);
-      const nowGone   =  isChargeExpired(id, y, m);
-      if (wasActive && nowGone) {
-        const def = DEFAULT_CHARGES.find(c => c.id === id);
-        if (def) freed += def.value;
-      }
-    });
-    return r5(freed);
-  }
-  const freedThisMonth = getFreedThisMonth();
+  const tkCourses = Math.max(0, tickets - tkRestos);
 
   // Livret A — robuste avec fallback
   const epargne_ca  = getVal(active.charges, 'epargne_ca');
@@ -1415,7 +1349,7 @@ function compute() {
   return { revenus, tickets, charges, dispo, buffer: pockets.buffer, epargne_ca,
            livretA, livretTotal,
            tkRestos, tkBoul, tkCourses,
-           POCKETS: pockets, TOTAL_POCKETS: pockets.total, refPockets, phasePockets,
+           POCKETS: pockets, refPockets, phasePockets,
            p2_freed, p2_livreta,
            p3_freed, p3_plaisir, p3_livreta, p3_pl_d, p3_la_d,
            p4_freed, p4_plaisir, p4_livreta, p4_pl_d, p4_la_d };
@@ -1626,7 +1560,6 @@ function updateRestant(type) {
     el.textContent = sign + fmt(total);
   }
 }
-
 
 function startAmountEdit(span, item, type) {
   if (span.querySelector('input')) return;
@@ -1844,17 +1777,12 @@ function renderAll() {
 
   // Totals
   set('total-charges', '−' + fmt(c.charges));
-  set('total-revenus', '+' + fmt(c.revenus));
-  set('total-tickets-autres',  '+' + fmt(c.tickets));
-  set('total-general-revenus', '+' + fmt(c.revenus + c.tickets));
 
   // Init totaux restants (si aucune case n'est cochée = identique au total)
   updateRestant('income');
   updateRestant('charge');
 
   // Buffer CA = dispo - pockets CA
-  set('p1-buffer',  Math.round(ppBuffer) + ' €');
-  set('p1-dispo',   'Disponible : ' + fmt(c.dispo));
 
   const tk = c.tickets;
   const pR = tk > 0 ? c.tkRestos  / tk * 100 : 0;
@@ -1870,29 +1798,12 @@ function renderAll() {
   set('tr-td-total',    fmtN(tk) + ' €');
 
   // Phase 1
-  set('p1-plaisir', pp.plaisir + ' €');
-  set('p1-livreta', Math.round(c.livretA) + ' €');
 
   // Phase 2
-  set('p2-freed',  '+' + c.p2_freed + ' € libérés');
-  set('p2-desc',   'Recommandation : les ' + c.p2_freed + ' € rejoignent le Livret A.');
-  set('p2-ldds',   Math.round(c.livretA) + ' → ' + Math.round(c.p2_livreta) + ' € (+' + c.p2_freed + ')');
 
   // Phase 3
-  set('p3-freed',   '+' + c.p3_freed + ' € libérés');
-  set('p3-desc',    'Distribution suggérée des ' + c.p3_freed + ' € récupérés :');
-  set('p3-plaisir', c.refPockets.plaisir + ' → ' + c.p3_plaisir + ' € (+' + c.p3_pl_d + ')');
-  set('p3-livreta', Math.round(c.p2_livreta) + ' → ' + Math.round(c.p3_livreta) + ' € (+' + c.p3_la_d + ')');
-  set('p3-ldds',    '');
-  set('p3-note',    '💡 Livret A atteindra ~' + Math.round(c.p3_livreta) + ' €/mois à cette phase.');
 
   // Phase 4
-  set('p4-freed',         '+' + c.p4_freed + ' € libérés');
-  set('p4-plaisir',       c.p3_plaisir + ' → ' + c.p4_plaisir + ' € (+' + c.p4_pl_d + ')');
-  set('p4-livreta',       Math.round(c.p3_livreta) + ' → ' + Math.round(c.p4_livreta) + ' € (+' + c.p4_la_d + ')');
-  set('p4-ldds',          '');
-  set('p4-total-livrets', '≥ ' + Math.round(c.p4_livreta) + ' €/mois sur Livret A');
-  set('p4-note',          '🚀 À ce stade, plus aucun crédit. Redirige le surplus vers un placement (PEA, assurance-vie) avec l\'épargne accumulée.');
 }
 
 /* ════════════════════════════════════════
@@ -1908,7 +1819,7 @@ function exportExcel() {
   const h = (txt) => ({ v: txt, t: 's', s: { font: { bold: true } } });
   const money = (n) => ({ v: n, t: 'n', z: '#,##0.00 €' });
 
-  rows.push([h('BUDGET — MÉTHODE DES 5 COMPTES'), '', '']);
+  rows.push([h('BUDGET BIPS · ' + new Date().toLocaleDateString('fr-FR')), '', '']);
   rows.push(['', '', '']);
 
   rows.push([h('REVENUS MENSUELS'), '', '']);
@@ -1998,15 +1909,6 @@ function getYearStartBalance(year) {
   return computeYearEndBalance(year - 1);
 }
 
-// Cumul des versements tapis de toutes les années jusqu'à year (sans intérêts)
-function getCumulativeTapisContributions(year) {
-  const baseYear = Math.min(...Object.keys(YEAR_START_MONTHS).map(Number));
-  let total = 0;
-  for (let y = baseYear; y <= year; y++) {
-    const startMonth = YEAR_START_MONTHS[y] || 1;
-    for (let i = startMonth - 1; i < 12; i++) {
-      total += getLivretABreakdown(y + '-' + String(i + 1).padStart(2, '0')).tapis;
-    }
   }
   return total;
 }
@@ -2027,7 +1929,6 @@ function renderPrevisionnel() {
   }
 
   const nowKey = new Date().getFullYear() + '-' + String(new Date().getMonth()+1).padStart(2,'0');
-  const tapisTarget = getVal((STATE.income || DEFAULT_INCOME), 'salaire') * 3;
 
   // ── Calcul mois par mois ──
   let solde = getYearStartBalance(year);
@@ -2136,13 +2037,7 @@ function renderPrevisionnel() {
     const d = document.createElement('div');
     d.className = 'prev-obj-card';
     let extra = '';
-    if (o.isTapis) {
-      const pct = Math.min(100, o.val / tapisTarget * 100);
-      const restant = Math.max(0, tapisTarget - o.val);
-      extra = `
-        <div class="prev-tapis-bar-wrap"><div class="prev-tapis-bar" style="width:${pct.toFixed(1)}%"></div></div>
-        <div class="prev-obj-rate">${pct.toFixed(0)} % · ${pct >= 100 ? '🎯 Objectif atteint !' : Math.round(restant) + ' € restants sur ' + Math.round(tapisTarget) + ' €'}</div>`;
-    } else {
+    extra = `<div class="prev-obj-rate">${o.note}</div>`;
       extra = `<div class="prev-obj-rate">${o.note}</div>`;
     }
     d.innerHTML = `
@@ -2214,8 +2109,6 @@ function renderAnnual() {
   const KEYS = MOIS.map((_,i) => year + '-' + String(i+1).padStart(2,'0'));
 
   const months = KEYS.map((k,i) => ({ label: MOIS[i], key: k, ...computeMonthForKey(k) }));
-
-  const tapisTarget = getVal(STATE.income, 'salaire') * 3;
 
   let plaisirCum=0, livretACum=0, bufferCum=0;
 
@@ -2330,11 +2223,8 @@ async function initApp() {
 
   // ── Fallback localStorage si Firebase vide ou non connecté ──
   if (!STATE) {
-    STATE = loadStateFromLS();
-    // Migrer les données locales vers Firebase si connecté
-    if (firebaseOk && _uid && STATE !== freshState()) {
-      dbSet(SK, JSON.stringify(STATE));
-    }
+    STATE = migrateState(loadState());
+    if (firebaseOk && _uid) dbSet(SK, JSON.stringify(STATE));
   }
   if (!Object.keys(CHECK_STATE).length) {
     try { const r = localStorage.getItem(SK_CHECKS); if (r) CHECK_STATE = JSON.parse(r); } catch(e) {}

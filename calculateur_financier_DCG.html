@@ -2040,10 +2040,10 @@ function calcEmprunt() {
   const n=parseInt(document.getElementById('emp_n').value);
   const type=document.getElementById('emp_type').value;
   if([cap,t,n].some(isNaN)) return alert('Données incomplètes');
-  
+
   let rows='', totalInt=0, totalAmort=0;
   const th='<tr><th>Année</th><th>Capital début</th><th>Intérêts</th><th>Amort.</th><th>Annuité</th><th>Capital fin</th></tr>';
-  
+
   if(type==='annuite') {
     const a=cap*t/(1-Math.pow(1+t,-n));
     let cap_rest=cap;
@@ -2120,14 +2120,14 @@ function calcAmort(){
   const coef=parseFloat(document.getElementById('am_coef').value)||1.75;
   const dateStr=document.getElementById('am_date').value;
   if(isNaN(vo)||isNaN(n)) return alert('Données incomplètes');
-  
+
   const tlin=1/n;
   const tdeg=tlin*coef;
-  
+
   let rows='';
   let vr=vo;
   let cumul=0;
-  
+
   if(type==='lineaire'){
     const a=vo*tlin;
     let prorata=1;
