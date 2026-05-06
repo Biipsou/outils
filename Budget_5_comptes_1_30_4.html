@@ -907,7 +907,7 @@ function updateAuthBadge(user) {
 }
 
 async function initFirebase() {
-  firebase.initializeApp(FIREBASE_CONFIG);
+  if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
   return new Promise(resolve => {
     firebase.auth().onAuthStateChanged(async user => {
       if (user) {
@@ -2240,7 +2240,11 @@ async function initApp() {
 
 initApp().catch(e => {
   console.error('[initApp]', e);
-  // Ne pas contourner l'auth — l'overlay reste en place
+  // Erreur technique (pas liée à l'auth) — charger depuis localStorage et afficher
+  if (!STATE) STATE = migrateState(loadState());
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) overlay.style.display = 'none';
+  renderAll();
 });
 </script>
 </body>
