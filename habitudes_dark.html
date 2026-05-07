@@ -1240,7 +1240,7 @@ const FIREBASE_CONFIG = {
     } else {
       badge.innerHTML = '<button id="btn-signin-hab">Connexion Google</button>';
       document.getElementById('btn-signin-hab').onclick = () =>
-        firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+        firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
     }
   }
 
@@ -1266,7 +1266,8 @@ const FIREBASE_CONFIG = {
   async function initHabApp() {
     if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     await new Promise(resolve => {
-      firebase.auth().onAuthStateChanged(async user => {
+      await firebase.auth().getRedirectResult().catch(e => console.warn('Redirect:', e));
+    firebase.auth().onAuthStateChanged(async user => {
         if (user) {
           _dbH  = firebase.firestore();
           _uidH = user.uid;
@@ -1294,7 +1295,7 @@ const FIREBASE_CONFIG = {
             btnO.onclick = async () => {
               btnO.style.display = 'none';
               try {
-                await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+                await firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
               } catch(e) {
                 btnO.style.display = 'block';
               }

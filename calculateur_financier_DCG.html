@@ -244,6 +244,7 @@
   const overlay = document.getElementById('calc-loading-overlay');
   const btnSignin = document.getElementById('calc-btn-signin');
 
+  auth.getRedirectResult().catch(function(e) { console.warn('Redirect:', e); });
   auth.onAuthStateChanged(function(user) {
     if (user) {
       if (overlay) overlay.style.display = 'none';
@@ -252,7 +253,7 @@
         btnSignin.style.display = 'block';
         btnSignin.onclick = function() {
           btnSignin.style.display = 'none';
-          auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function() {
+          auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function() {
             btnSignin.style.display = 'block';
           });
         };

@@ -906,6 +906,8 @@ function updateAuthBadge(user) {
 
 async function initFirebase() {
   if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+  // Récupérer le résultat si on revient d'un redirect Google
+  await firebase.auth().getRedirectResult().catch(e => console.warn('Redirect:', e));
   return new Promise(resolve => {
     firebase.auth().onAuthStateChanged(async user => {
       if (user) {
@@ -921,7 +923,7 @@ async function initFirebase() {
           btnOverlay.onclick = async () => {
             btnOverlay.style.display = 'none';
             try {
-              await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+              await firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
             } catch(e) {
               btnOverlay.style.display = 'block';
             }
