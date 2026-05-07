@@ -245,7 +245,13 @@
   const btnSignin = document.getElementById('calc-btn-signin');
 
   auth.getRedirectResult().catch(function(e) { console.warn('Redirect:', e); });
-  auth.onAuthStateChanged(function(user) {
+  function doSignIn() {
+  firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+}
+  });
+}
+
+auth.onAuthStateChanged(function(user) {
     if (user) {
       if (overlay) overlay.style.display = 'none';
     } else {
@@ -253,7 +259,7 @@
         btnSignin.style.display = 'block';
         btnSignin.onclick = function() {
           btnSignin.style.display = 'none';
-          auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function() {
+          doSignIn().catch(function() {
             btnSignin.style.display = 'block';
           });
         };

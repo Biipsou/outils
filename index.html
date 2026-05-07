@@ -215,12 +215,13 @@ function showLogin(denied) {
   msgAccess.style.display    = denied ? 'block' : 'none';
 }
 
-// Récupérer le résultat si on revient d'un redirect Google
-auth.getRedirectResult().catch(function(e) {
-  console.error('Redirect error:', e);
-  showLogin(false);
-});
+function doSignIn() {
+  firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+}
+  });
+}
 
+auth.getRedirectResult().catch(function(e){ console.warn(e); });
 auth.onAuthStateChanged(function(user) {
   if (user) {
     if (user.email.toLowerCase() === ALLOWED_EMAIL.toLowerCase()) {
@@ -239,7 +240,7 @@ btnSignin.onclick = function() {
   btnSignin.style.display = 'none';
   msgAccess.style.display = 'none';
   spinner.style.display   = 'block';
-  auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(function() {
+  doSignIn().catch(function() {
     showLogin(false);
   });
 };

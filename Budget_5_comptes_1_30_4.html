@@ -906,10 +906,14 @@ function updateAuthBadge(user) {
 
 async function initFirebase() {
   if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-  // Récupérer le résultat si on revient d'un redirect Google
-  await firebase.auth().getRedirectResult().catch(e => console.warn('Redirect:', e));
   return new Promise(resolve => {
-    firebase.auth().onAuthStateChanged(async user => {
+    function doSignIn() {
+  firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+}
+      });
+    }
+    firebase.auth().getRedirectResult().catch(function(e){ console.warn(e); });
+firebase.auth().onAuthStateChanged(async user => {
       if (user) {
         _db  = firebase.firestore();
         _uid = user.uid;
@@ -920,13 +924,9 @@ async function initFirebase() {
         const btnOverlay = document.getElementById('btn-signin-overlay');
         if (btnOverlay) {
           btnOverlay.style.display = 'block';
-          btnOverlay.onclick = async () => {
+          btnOverlay.onclick = function() {
             btnOverlay.style.display = 'none';
-            try {
-              await firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
-            } catch(e) {
-              btnOverlay.style.display = 'block';
-            }
+            doSignIn();
           };
         }
       }
@@ -934,7 +934,7 @@ async function initFirebase() {
   });
 }
 
-/* ════════════════════════════════════════
+  /* ════════════════════════════════════════
    DONNÉES & PERSISTANCE
 ════════════════════════════════════════ */
 const SK = 'budget5_v11';
