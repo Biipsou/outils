@@ -612,33 +612,7 @@ body {
 #btn-retour:hover { color: #e8e8e8; border-color: rgba(255,255,255,0.2); }
 
   /* AUTH BADGE */
-  #loading-overlay-hab {
-    position: fixed; inset: 0; z-index: 9999;
-    background: #0a0a0f;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 28px;
-  }
-  #loading-overlay-hab .lo-spinner {
-    width: 38px; height: 38px;
-    border: 2px solid rgba(201,169,110,0.15);
-    border-top-color: #c9a96e;
-    border-radius: 50%;
-    animation: lo-spin 1s linear infinite;
-  }
   @keyframes lo-spin { to { transform: rotate(360deg); } }
-  #loading-overlay-hab .lo-title {
-    font-family: 'Jost', sans-serif; font-weight: 200;
-    font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase;
-    color: rgba(201,169,110,0.6);
-  }
-  #loading-overlay-hab #btn-signin-overlay-hab {
-    display: none;
-    background: none; border: 1px solid rgba(201,169,110,0.4);
-    color: #c9a96e; cursor: pointer;
-    font-size: 12px; font-family: 'Jost', sans-serif;
-    padding: 8px 24px; border-radius: 8px; letter-spacing: 0.1em;
-  }
-  #loading-overlay-hab #btn-signin-overlay-hab:hover { background: rgba(201,169,110,0.08); }
     position: fixed; top: 16px; right: 20px; z-index: 10000;
     display: flex; align-items: center; gap: 8px;
     background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1);
@@ -653,13 +627,44 @@ body {
   #btn-signin-hab { background: none; border: 1px solid rgba(180,160,120,0.4); color: #c9a96e; cursor: pointer; font-size: 11px; padding: 4px 12px; border-radius: 8px; }
   #btn-signin-hab:hover { background: rgba(201,169,110,0.1); }
 </style>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-<div id="loading-overlay-hab">
-  <div class="lo-spinner"></div>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<style>
+  #auth-gate {
+    position: fixed; inset: 0; background: #111110; z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #auth-gate .g {
+    width: 28px; height: 28px;
+    border: 1.5px solid rgba(200,160,64,.2); border-top-color: #c8a040;
+    border-radius: 50%; animation: gs 1s linear infinite;
+  }
+  @keyframes gs { to { transform: rotate(360deg); } }
+</style>
+<div id="auth-gate"><div class="g"></div></div>
+<script>
+(function() {
+  var CFG = {
+    apiKey:'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',
+    authDomain:'budget-58f12.firebaseapp.com',
+    projectId:'budget-58f12',
+    storageBucket:'budget-58f12.firebasestorage.app',
+    messagingSenderId:'327922790999',
+    appId:'1:327922790999:web:076a60cf85287d3d38e912'
+  };
+  if (!firebase.apps.length) firebase.initializeApp(CFG);
+  firebase.auth().getRedirectResult().catch(function(){});
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user && user.email.toLowerCase() === 'baps.renard@gmail.com') {
+      document.getElementById('auth-gate').style.display = 'none';
+    } else {
+      window.location.href = 'index.html';
+    }
+  });
+})();
+</script>
   <div class="lo-title">Chargement en cours…</div>
   <button id="btn-signin-overlay-hab">Connexion Google</button>
 </div>
@@ -1264,10 +1269,31 @@ const FIREBASE_CONFIG = {
   }
 
   async function initHabApp() {
-    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-    await new Promise(resolve => {
-          function doSignIn() {
-  firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+  if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+  firebase.auth().onAuthStateChanged(async user => {
+    if (user) {
+      _dbH  = firebase.firestore();
+      _uidH = user.uid;
+      updateAuthBadgeH(user);
+      const raw = await dbGetH(STORAGE_KEY_HAB).catch(() => null);
+      if (raw) {
+        try {
+          const saved = JSON.parse(raw);
+          if (saved.date_debut)  { dateDebut.value = saved.date_debut; calcObjectif(saved.date_debut); }
+          if (saved.date_succes) dateSucces.value = saved.date_succes;
+        } catch(e) {}
+      } else {
+        const local = JSON.parse(localStorage.getItem(STORAGE_KEY_HAB) || '{}');
+        if (local.date_debut)  { dateDebut.value = local.date_debut; calcObjectif(local.date_debut); }
+        if (local.date_succes) dateSucces.value = local.date_succes;
+      }
+    } else {
+      updateAuthBadgeH(null);
+      const local = JSON.parse(localStorage.getItem(STORAGE_KEY_HAB) || '{}');
+      if (local.date_debut)  { dateDebut.value = local.date_debut; calcObjectif(local.date_debut); }
+      if (local.date_succes) dateSucces.value = local.date_succes;
+    }
+  });
 }
   });
 }
@@ -1290,24 +1316,10 @@ firebase.auth().onAuthStateChanged(async user => {
             if (local.date_debut)  { dateDebut.value = local.date_debut; calcObjectif(local.date_debut); }
             if (local.date_succes) dateSucces.value = local.date_succes;
           }
-          document.getElementById('loading-overlay-hab').style.display = 'none';
           resolve();
         } else {
           updateAuthBadgeH(null);
           // Pas de timeout — chargement infini jusqu'à connexion Google
-          const btnO = document.getElementById('btn-signin-overlay-hab');
-          if (btnO) {
-            btnO.style.display = 'block';
-            btnO.onclick = async () => {
-              btnO.style.display = 'none';
-              try {
-                await doSignIn();
-              } catch(e) {
-                btnO.style.display = 'block';
-              }
-            };
-          }
-          // Ne pas appeler resolve() — l'overlay reste jusqu'à connexion
         }
       });
     });

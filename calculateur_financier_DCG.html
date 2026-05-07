@@ -192,27 +192,7 @@
     .tab{padding:9px 10px;font-size:9px;} .content{padding:10px;} .card{padding:12px;} .section-title{font-size:14px;} .result-main{font-size:16px;} .fuel-compare{grid-template-columns:1fr;}
   }
 </style>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<style>
-  #calc-loading-overlay {
-    position: fixed; inset: 0; z-index: 9999;
-    background: #0a0b10;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 24px;
-  }
-  #calc-loading-overlay .clo-spinner {
-    width: 36px; height: 36px;
-    border: 2px solid rgba(120,180,255,0.15);
-    border-top-color: #7ab4ff;
-    border-radius: 50%;
-    animation: clo-spin 1s linear infinite;
-  }
-  @keyframes clo-spin { to { transform: rotate(360deg); } }
-  #calc-loading-overlay .clo-label {
-    font-family: monospace; font-size: 11px; letter-spacing: 0.2em;
-    text-transform: uppercase; color: rgba(120,180,255,0.5);
-  }
+<style> }
   #calc-loading-overlay #calc-btn-signin {
     display: none;
     background: none; border: 1px solid rgba(120,180,255,0.4);
@@ -224,48 +204,48 @@
 </style>
 </head>
 <body>
-<div id="calc-loading-overlay">
-  <div class="clo-spinner"></div>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<style>
+  #auth-gate {
+    position: fixed; inset: 0; background: #111110; z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #auth-gate .g {
+    width: 28px; height: 28px;
+    border: 1.5px solid rgba(200,160,64,.2); border-top-color: #c8a040;
+    border-radius: 50%; animation: gs 1s linear infinite;
+  }
+  @keyframes gs { to { transform: rotate(360deg); } }
+</style>
+<div id="auth-gate"><div class="g"></div></div>
+<script>
+(function() {
+  var CFG = {
+    apiKey:'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',
+    authDomain:'budget-58f12.firebaseapp.com',
+    projectId:'budget-58f12',
+    storageBucket:'budget-58f12.firebasestorage.app',
+    messagingSenderId:'327922790999',
+    appId:'1:327922790999:web:076a60cf85287d3d38e912'
+  };
+  if (!firebase.apps.length) firebase.initializeApp(CFG);
+  firebase.auth().getRedirectResult().catch(function(){});
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user && user.email.toLowerCase() === 'baps.renard@gmail.com') {
+      document.getElementById('auth-gate').style.display = 'none';
+    } else {
+      window.location.href = 'index.html';
+    }
+  });
+})();
+</script>
   <div class="clo-label">Chargement…</div>
   <button id="calc-btn-signin">Connexion Google</button>
 </div>
 <script>
 (function() {
-  const CFG = {
-    apiKey:            'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',
-    authDomain:        'budget-58f12.firebaseapp.com',
-    projectId:         'budget-58f12',
-    storageBucket:     'budget-58f12.firebasestorage.app',
-    messagingSenderId: '327922790999',
-    appId:             '1:327922790999:web:076a60cf85287d3d38e912'
-  };
-  if (!firebase.apps.length) firebase.initializeApp(CFG);
-  const auth = firebase.auth();
-  const overlay = document.getElementById('calc-loading-overlay');
-  const btnSignin = document.getElementById('calc-btn-signin');
-
-  auth.getRedirectResult().catch(function(e) { console.warn('Redirect:', e); });
-  function doSignIn() {
-  firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
-}
-  });
-}
-
-auth.onAuthStateChanged(function(user) {
-    if (user) {
-      if (overlay) overlay.style.display = 'none';
-    } else {
-      if (btnSignin) {
-        btnSignin.style.display = 'block';
-        btnSignin.onclick = function() {
-          btnSignin.style.display = 'none';
-          doSignIn().catch(function() {
-            btnSignin.style.display = 'block';
-          });
-        };
-      }
-    }
-  });
+  if (!firebase.apps.length) firebase.initializeApp({apiKey:'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',authDomain:'budget-58f12.firebaseapp.com',projectId:'budget-58f12',storageBucket:'budget-58f12.firebasestorage.app',messagingSenderId:'327922790999',appId:'1:327922790999:web:076a60cf85287d3d38e912'});
 })();
 </script>
 
