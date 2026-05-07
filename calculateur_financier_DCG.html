@@ -231,34 +231,32 @@
 </div>
 <script>
 (function() {
-  const FIREBASE_CONFIG_CALC = {
-    apiKey:            "AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk",
-    authDomain:        "budget-58f12.firebaseapp.com",
-    projectId:         "budget-58f12",
-    storageBucket:     "budget-58f12.firebasestorage.app",
-    messagingSenderId: "327922790999",
-    appId:             "1:327922790999:web:076a60cf85287d3d38e912"
+  const CFG = {
+    apiKey:            'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',
+    authDomain:        'budget-58f12.firebaseapp.com',
+    projectId:         'budget-58f12',
+    storageBucket:     'budget-58f12.firebasestorage.app',
+    messagingSenderId: '327922790999',
+    appId:             '1:327922790999:web:076a60cf85287d3d38e912'
   };
-  // Utilise l'app existante si déjà initialisée (Firebase ne permet qu'une instance par nom)
-  const appName = 'calc-app';
-  const fbApp = firebase.apps.find(a => a.name === appName) || firebase.initializeApp(FIREBASE_CONFIG_CALC, appName);
-  const auth = firebase.auth(fbApp);
+  if (!firebase.apps.length) firebase.initializeApp(CFG);
+  const auth = firebase.auth();
+  const overlay = document.getElementById('calc-loading-overlay');
+  const btnSignin = document.getElementById('calc-btn-signin');
 
   auth.onAuthStateChanged(function(user) {
     if (user) {
-      document.getElementById('calc-loading-overlay').style.display = 'none';
+      if (overlay) overlay.style.display = 'none';
     } else {
-      const btn = document.getElementById('calc-btn-signin');
-      if (btn) {
-        btn.style.display = 'block';
-        btn.onclick = function() {
-          btn.style.display = 'none';
+      if (btnSignin) {
+        btnSignin.style.display = 'block';
+        btnSignin.onclick = function() {
+          btnSignin.style.display = 'none';
           auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function() {
-            btn.style.display = 'block';
+            btnSignin.style.display = 'block';
           });
         };
       }
-      // Pas de timeout — overlay infini jusqu'à connexion Google
     }
   });
 })();

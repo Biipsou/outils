@@ -175,7 +175,7 @@
 </div>
 <script>
 // ── REMPLACE PAR TON ADRESSE GMAIL ───────────────────────────────────────────
-const ALLOWED_EMAIL = 'baps.renard@gmail.com';
+const ALLOWED_EMAIL = 'ton.adresse@gmail.com';
 // ─────────────────────────────────────────────────────────────────────────────
 
 const FIREBASE_CONFIG = {
@@ -187,8 +187,8 @@ const FIREBASE_CONFIG = {
   appId:             '1:327922790999:web:076a60cf85287d3d38e912'
 };
 
-const app  = firebase.apps.find(a => a.name === 'idx') || firebase.initializeApp(FIREBASE_CONFIG, 'idx');
-const auth = firebase.auth(app);
+if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+const auth = firebase.auth();
 
 const screenLogin  = document.getElementById('screen-login');
 const screenApp    = document.getElementById('screen-app');
@@ -217,7 +217,7 @@ function showLogin(denied) {
 
 auth.onAuthStateChanged(function(user) {
   if (user) {
-    if (user.email === ALLOWED_EMAIL) {
+    if (user.email.toLowerCase() === ALLOWED_EMAIL.toLowerCase()) {
       showApp(user);
     } else {
       // Mauvais compte → déconnexion immédiate + message

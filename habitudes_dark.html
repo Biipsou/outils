@@ -875,6 +875,15 @@ body {
     <div id="tracker-container"></div>
 
     <script>
+const FIREBASE_CONFIG = {
+  apiKey:            'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',
+  authDomain:        'budget-58f12.firebaseapp.com',
+  projectId:         'budget-58f12',
+  storageBucket:     'budget-58f12.firebasestorage.app',
+  messagingSenderId: '327922790999',
+  appId:             '1:327922790999:web:076a60cf85287d3d38e912'
+};
+
       const STORAGE_KEY = 'habitudes_v1';
       function loadState() {
         try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
@@ -1202,14 +1211,7 @@ body {
      FIREBASE CONFIG — À personnaliser
      ⚠️  Remplis ces valeurs (mêmes que Budget)
   ══════════════════════════════════════ */
-  const FIREBASE_CONFIG_HAB = {
-    apiKey:            "AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk",
-    authDomain:        "budget-58f12.firebaseapp.com",
-    projectId:         "budget-58f12",
-    storageBucket:     "budget-58f12.firebasestorage.app",
-    messagingSenderId: "327922790999",
-    appId:             "1:327922790999:web:076a60cf85287d3d38e912"
-  };
+  ;
 
   const STORAGE_KEY_HAB = 'habitudes_v1';
   let _dbH = null, _uidH = null;
@@ -1262,7 +1264,7 @@ body {
   }
 
   async function initHabApp() {
-    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG_HAB);
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     await new Promise(resolve => {
       firebase.auth().onAuthStateChanged(async user => {
         if (user) {
