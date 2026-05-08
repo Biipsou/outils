@@ -620,15 +620,13 @@ body {
     font-family: monospace; font-size: 11px; color: #aaa;
     box-shadow: 0 4px 20px rgba(0,0,0,0.5);
   }
-  #auth-badge img { width: 22px; height: 22px; border-radius: 50%; }
-  #auth-badge .auth-name { max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #eee; }
   #btn-signout { background: none; border: none; color: #666; cursor: pointer; font-size: 10px; padding: 0; margin-left: 4px; }
   #btn-signout:hover { color: #f07070; }
   #btn-signin-hab { background: none; border: 1px solid rgba(180,160,120,0.4); color: #c9a96e; cursor: pointer; font-size: 11px; padding: 4px 12px; border-radius: 8px; }
   #btn-signin-hab:hover { background: rgba(201,169,110,0.1); }
 </style>
 </head>
-<body>
+<body style="visibility:hidden">
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <style>
@@ -669,7 +667,6 @@ body {
   <button id="btn-signin-overlay-hab">Connexion Google</button>
 </div>
 <a id="btn-retour" href="index.html">← Accueil</a>
-<div id="auth-badge" style="display:none"></div>
 <div class="page">
 
   <!-- COVER -->
@@ -822,6 +819,12 @@ body {
   <div class="section" id="daily-section">
     <div class="section-label" id="daily-label">Ta journée type · Séquence invariable · heures variables</div>
     <p class="schedule-intro">Les heures sont des cibles valables quand tu rentres vers 18h50. Si tu rentres plus tard, la séquence reste identique — elle se décale en bloc. Ce qui absorbe le retard : le temps libre. Ce qui ne bouge jamais : les habitudes.</p>
+
+    <div style="display:flex;gap:8px;margin-bottom:20px">
+      <button id="btn-semaine" onclick="switchPlanning('semaine',this)" style="padding:6px 18px;border:1px solid var(--gold);border-radius:4px;background:rgba(201,169,110,.12);color:var(--gold);font-family:inherit;font-size:12px;letter-spacing:.06em;cursor:pointer">📅 Semaine</button>
+      <button id="btn-weekend" onclick="switchPlanning('weekend',this)" style="padding:6px 18px;border:1px solid #636672;border-radius:4px;background:none;color:#a0a3b0;font-family:inherit;font-size:12px;letter-spacing:.06em;cursor:pointer">🌅 Week-end & Jours fériés</button>
+    </div>
+
     <div id="daily-habit-banner"></div>
     <div class="schedule-grid">
 
@@ -864,6 +867,35 @@ body {
           <div class="time-label"><strong>Fin du travail</strong><small>L'heure de retour est variable — la séquence qui suit ne l'est pas</small></div>
         </div>
         <div id="evening-blocks"></div>
+      </div>
+
+      <!-- PLANNING WEEK-END (caché par défaut) -->
+      <div class="schedule-col" id="weekend-morning-col" style="display:none">
+        <h3>Matin <em>→ Repos</em></h3>
+        <div class="time-block">
+          <div class="time">libre</div>
+          <div class="time-label"><strong>Réveil naturel</strong><small>Pas d'alarme — le corps récupère. Idéalement avant 9h pour ne pas décaler la semaine suivante</small></div>
+        </div>
+        <div class="time-block highlight-block">
+          <div class="time">matin</div>
+          <div class="time-label"><strong>Hygiène & petit-déj.</strong><small>Même séquence qu'en semaine, à ton rythme · pas de pression horaire</small></div>
+        </div>
+        <div class="time-block">
+          <div class="time">+30'</div>
+          <div class="time-label"><strong>Zone de nettoyage</strong><small>La zone du jour (voir rotation hebdo) · plus de temps disponible → approfondir si besoin</small></div>
+        </div>
+        <div class="time-block highlight-block">
+          <div class="time">après-midi</div>
+          <div class="time-label"><strong>★ DCG ou apprentissage</strong><small>Plus de temps qu'en semaine — exploite-le : 45–60 min possible · sinon 20 min minimum</small></div>
+        </div>
+        <div class="time-block">
+          <div class="time">libre</div>
+          <div class="time-label"><strong>Temps libre long</strong><small>Sorties, amis, séries, sport · profites-en pleinement — tu as respecté tes habitudes</small></div>
+        </div>
+      </div>
+      <div class="schedule-col" id="weekend-evening-col" style="display:none">
+        <h3>Soir <em>→ Routine</em></h3>
+        <div id="weekend-evening-blocks"></div>
       </div>
 
     </div>
@@ -1007,10 +1039,66 @@ const FIREBASE_CONFIG = {
       }
 
       // ── RENDER SCHEDULE ──
+      let currentPlanningMode = 'semaine';
+
+      // Weekend evening data per habit (adapted - no commute, later bedtime OK)
+      const WEEKEND_EVENING = [
+        // H1: Routine complète du soir (weekend version)
+        [
+          { time:'18h00', label:'Décompression', note:'Fin des activités de la journée — ouvrir les fenêtres', hl:false },
+          { time:'+15\'',  label:'★ Zone de nettoyage (15 min)', note:'Même rotation : Lun=cuisine, Mar=SdB, Mer=salon... · le week-end c\'est la zone du jour, pas de jours de semaine — adapte selon quand tu t\'en charges', hl:true },
+          { time:'+30\'',  label:'Dîner', note:'Plus relaxé qu\'en semaine — profite de cuisiner quelque chose de meilleur si tu as le temps', hl:false },
+          { time:'+75\'',  label:'★ Apprentissage (20–45 min)', note:'Créneau étendu le week-end : DCG, lecture, italien — exploite le temps disponible · jamais deux jours sans', hl:true },
+          { time:'22h30', label:'★ Douche + dents + lit', note:'Tolérance : jusqu\'à 23h30 le week-end · fermer les fenêtres · téléphone posé · réveil naturel le lendemain', hl:true },
+        ],
+        // H2: Vêtements prêts
+        [
+          { time:'18h00', label:'Décompression', note:'Fin des activités', hl:false },
+          { time:'+15\'',  label:'Zone de nettoyage (15 min)', note:'Même rotation hebdomadaire', hl:false },
+          { time:'+30\'',  label:'Dîner', note:'Relaxé · cuisiner de bonnes choses', hl:false },
+          { time:'+75\'',  label:'Apprentissage (20–30 min)', note:'Maintien du créneau même le week-end', hl:true },
+          { time:'★ dim', label:'Vêtements de la semaine', note:'Le DIMANCHE soir : laver · sécher · repasser · 5 tenues suspendues dans l\'ordre lun→ven · 30 min suffit', hl:true },
+          { time:'23h00', label:'Lumières éteintes', note:'Réveil naturel lundi — pas d\'alarme à 6h si lundi est aussi un jour férié', hl:false },
+        ],
+        // H3: Repas du midi
+        [
+          { time:'18h00', label:'Décompression', note:'Fin des activités', hl:false },
+          { time:'+15\'',  label:'Zone de nettoyage (15 min)', note:'Même rotation', hl:false },
+          { time:'+30\'',  label:'★ Dîner + batch cooking optionnel', note:'Le week-end est idéal pour préparer 2–3 portions pour la semaine · cuisiner en double · tupperware pour lundi et mardi', hl:true },
+          { time:'+75\'',  label:'Apprentissage (20–30 min)', note:'Créneau maintenu même le week-end', hl:true },
+          { time:'23h00', label:'Douche + dents + lit', note:'Tolérance jusqu\'à 23h30 · fermer les fenêtres', hl:false },
+        ],
+        // H4: Alimentation équilibrée
+        [
+          { time:'18h00', label:'Décompression', note:'Fin des activités', hl:false },
+          { time:'+15\'',  label:'Zone de nettoyage (15 min)', note:'Même rotation', hl:false },
+          { time:'+30\'',  label:'★ Dîner équilibré + batch cook', note:'½ légumes · ¼ protéine · ¼ féculent · le week-end permet un vrai repas cuisiné équilibré · prépare tupperware semaine', hl:true },
+          { time:'+75\'',  label:'Apprentissage (20–30 min)', note:'Créneau maintenu', hl:true },
+          { time:'23h00', label:'Douche + dents + lit', note:'Tolérance jusqu\'à 23h30 · fermer les fenêtres', hl:false },
+        ],
+        // H5: Alimentation saine qualité
+        [
+          { time:'matin', label:'★ Meal prep (dimanche)', note:'Le dimanche matin ou après-midi : 3 portions pour la semaine · équilibre et qualité · 45–60 min · investissement clé de la semaine', hl:true },
+          { time:'18h00', label:'Décompression', note:'Fin des activités', hl:false },
+          { time:'+30\'',  label:'★ Dîner qualitatif + batch', note:'Fait maison prioritaire · réduis un ultra-transformé cette semaine · 1,5L d\'eau dans la journée', hl:true },
+          { time:'+75\'',  label:'Apprentissage (20–30 min)', note:'Maintenu même le week-end', hl:true },
+          { time:'23h00', label:'Douche + dents + lit', note:'Tolérance jusqu\'à 23h30', hl:false },
+        ],
+        // H6: Libération dépendance
+        [
+          { time:'libre',  label:'★ Journée sans consommation', note:'Le week-end est le test réel · identifier les créneaux à risque (ennui, soirée sans plan) · bloqueur actif toute la journée', hl:true },
+          { time:'18h00', label:'Décompression · bloqueur actif', note:'Cold Turkey / BlockSite maintenu · si créneau à risque : remplace par sport, balade, appel d\'ami', hl:false },
+          { time:'+30\'',  label:'Dîner qualitatif', note:'Repas complet · fait maison', hl:false },
+          { time:'+75\'',  label:'Apprentissage (20–30 min)', note:'Maintenu — occupation positive dans le créneau à risque du soir', hl:true },
+          { time:'23h00', label:'Douche + dents + lit', note:'Tolérance jusqu\'à 23h30', hl:false },
+        ],
+      ];
+
       function renderSchedule(activeNum) {
         const data = HABITS_DATA[activeNum - 1];
         const banner = document.getElementById('daily-habit-banner');
         const eveningBlocks = document.getElementById('evening-blocks');
+        const weekendEveningBlocks = document.getElementById('weekend-evening-blocks');
 
         banner.innerHTML = `
           <div class="habit-banner">
@@ -1029,6 +1117,17 @@ const FIREBASE_CONFIG = {
           </div>`;
         }).join('');
 
+        // Weekend evening blocks
+        const weData = WEEKEND_EVENING[activeNum - 1] || [];
+        weekendEveningBlocks.innerHTML = weData.map(b => {
+          const cls = b.hl ? 'highlight-block' : '';
+          return `
+          <div class="time-block ${cls}">
+            <div class="time">${b.time}</div>
+            <div class="time-label"><strong>${b.label}</strong><small>${b.note}</small></div>
+          </div>`;
+        }).join('');
+
         // Equal column heights
         requestAnimationFrame(() => {
           const left  = document.querySelector('.schedule-col:first-child');
@@ -1040,6 +1139,35 @@ const FIREBASE_CONFIG = {
           left.style.minHeight  = h + 'px';
           right.style.minHeight = h + 'px';
         });
+      }
+
+      function switchPlanning(mode, btn) {
+        currentPlanningMode = mode;
+        const semWeek = document.getElementById('btn-semaine');
+        const semWe   = document.getElementById('btn-weekend');
+        const mornCol = document.querySelector('.schedule-col:first-child');
+        const eveCol  = document.getElementById('evening-col');
+        const weMorn  = document.getElementById('weekend-morning-col');
+        const weEve   = document.getElementById('weekend-evening-col');
+
+        const activeStyle  = 'padding:6px 18px;border:1px solid var(--gold);border-radius:4px;background:rgba(201,169,110,.12);color:var(--gold);font-family:inherit;font-size:12px;letter-spacing:.06em;cursor:pointer';
+        const inactiveStyle= 'padding:6px 18px;border:1px solid #636672;border-radius:4px;background:none;color:#a0a3b0;font-family:inherit;font-size:12px;letter-spacing:.06em;cursor:pointer';
+
+        if (mode === 'semaine') {
+          semWeek.style.cssText = activeStyle;
+          semWe.style.cssText   = inactiveStyle;
+          if (mornCol) mornCol.style.display = '';
+          if (eveCol)  eveCol.style.display  = '';
+          if (weMorn)  weMorn.style.display  = 'none';
+          if (weEve)   weEve.style.display   = 'none';
+        } else {
+          semWeek.style.cssText = inactiveStyle;
+          semWe.style.cssText   = activeStyle;
+          if (mornCol) mornCol.style.display = 'none';
+          if (eveCol)  eveCol.style.display  = 'none';
+          if (weMorn)  weMorn.style.display  = '';
+          if (weEve)   weEve.style.display   = '';
+        }
       }
 
       // ── TRACKER 21 JOURS ──
@@ -1234,20 +1362,6 @@ const FIREBASE_CONFIG = {
     } catch(e) { return null; }
   }
 
-  function updateAuthBadgeH(user) {
-    const badge = document.getElementById('auth-badge');
-    badge.style.display = 'flex';
-    if (user) {
-      badge.innerHTML = (user.photoURL ? '<img src="' + user.photoURL + '" onerror="this.style.display=\'none\'">' : '') +
-        '<span class="auth-name">' + (user.displayName || user.email) + '</span>' +
-        '<button id="btn-signout">✕</button>';
-      document.getElementById('btn-signout').onclick = () => firebase.auth().signOut();
-    } else {
-      badge.innerHTML = '<button id="btn-signin-hab">Connexion Google</button>';
-      document.getElementById('btn-signin-hab').onclick = () =>
-        doSignIn();
-    }
-  }
 
   // Persist dates across sessions
   const dateDebut    = document.getElementById('date-debut');
@@ -1269,12 +1383,17 @@ const FIREBASE_CONFIG = {
   }
 
   async function initHabApp() {
-  if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-  firebase.auth().onAuthStateChanged(async user => {
-    if (user) {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    firebase.auth().getRedirectResult().catch(() => {});
+    firebase.auth().onAuthStateChanged(async user => {
+      const ALLOWED = 'baps.renard@gmail.com';
+      if (!user || user.email.toLowerCase() !== ALLOWED) {
+        window.location.replace('index.html');
+        return;
+      }
       _dbH  = firebase.firestore();
       _uidH = user.uid;
-      updateAuthBadgeH(user);
+      document.body.style.visibility = 'visible';
       const raw = await dbGetH(STORAGE_KEY_HAB).catch(() => null);
       if (raw) {
         try {
@@ -1287,54 +1406,15 @@ const FIREBASE_CONFIG = {
         if (local.date_debut)  { dateDebut.value = local.date_debut; calcObjectif(local.date_debut); }
         if (local.date_succes) dateSucces.value = local.date_succes;
       }
-    } else {
-      updateAuthBadgeH(null);
-      const local = JSON.parse(localStorage.getItem(STORAGE_KEY_HAB) || '{}');
-      if (local.date_debut)  { dateDebut.value = local.date_debut; calcObjectif(local.date_debut); }
-      if (local.date_succes) dateSucces.value = local.date_succes;
-    }
-  });
-}
-  });
-}
-
-  firebase.auth().getRedirectResult().catch(function(e){ console.warn(e); });
-firebase.auth().onAuthStateChanged(async user => {
-        if (user) {
-          _dbH  = firebase.firestore();
-          _uidH = user.uid;
-          updateAuthBadgeH(user);
-          const raw = await dbGetH(STORAGE_KEY_HAB);
-          if (raw) {
-            try {
-              const saved = JSON.parse(raw);
-              if (saved.date_debut)  { dateDebut.value = saved.date_debut; calcObjectif(saved.date_debut); }
-              if (saved.date_succes) dateSucces.value = saved.date_succes;
-            } catch(e) {}
-          } else {
-            const local = JSON.parse(localStorage.getItem(STORAGE_KEY_HAB) || '{}');
-            if (local.date_debut)  { dateDebut.value = local.date_debut; calcObjectif(local.date_debut); }
-            if (local.date_succes) dateSucces.value = local.date_succes;
-          }
-          resolve();
-        } else {
-          updateAuthBadgeH(null);
-          // Pas de timeout — chargement infini jusqu'à connexion Google
-        }
-      });
     });
   }
 
   initHabApp().catch(console.error);
 
-  dateDebut.addEventListener('change', () => {
-    calcObjectif(dateDebut.value);
-    saveHabState({ date_debut: dateDebut.value });
-  });
-  dateSucces.addEventListener('change', () => {
-    saveHabState({ date_succes: dateSucces.value });
-  });
-</script>
+  // Tracker refresh on load
+  window.addEventListener('DOMContentLoaded', () => refreshAll());
+
+  </script>
 
 </body>
 </html>

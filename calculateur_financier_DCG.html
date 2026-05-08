@@ -191,19 +191,21 @@
   @media(max-width:420px){
     .tab{padding:9px 10px;font-size:9px;} .content{padding:10px;} .card{padding:12px;} .section-title{font-size:14px;} .result-main{font-size:16px;} .fuel-compare{grid-template-columns:1fr;}
   }
+
+  /* BCE API status */
+  #bce-status { display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--muted); margin-bottom:12px; }
+  .bce-dot { width:8px; height:8px; border-radius:50%; background:var(--muted); flex-shrink:0; }
+  .bce-dot.ok { background:#4caf82; }
+  .bce-dot.err { background:#e07070; }
+  .bce-dot.loading { background:#c9a96e; animation:bce-pulse 1s ease-in-out infinite; }
+  @keyframes bce-pulse { 0%,100%{opacity:.3} 50%{opacity:1} }
+
 </style>
 <style> }
-  #calc-loading-overlay #calc-btn-signin {
-    display: none;
-    background: none; border: 1px solid rgba(120,180,255,0.4);
-    color: #7ab4ff; cursor: pointer;
-    font-size: 12px; font-family: monospace;
-    padding: 8px 24px; border-radius: 6px; letter-spacing: 0.08em;
-  }
-  #calc-loading-overlay #calc-btn-signin:hover { background: rgba(120,180,255,0.08); }
+
 </style>
 </head>
-<body>
+<body style="visibility:hidden">
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <style>
@@ -221,21 +223,15 @@
 <div id="auth-gate"><div class="g"></div></div>
 <script>
 (function() {
-  var CFG = {
-    apiKey:'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',
-    authDomain:'budget-58f12.firebaseapp.com',
-    projectId:'budget-58f12',
-    storageBucket:'budget-58f12.firebasestorage.app',
-    messagingSenderId:'327922790999',
-    appId:'1:327922790999:web:076a60cf85287d3d38e912'
-  };
+  var CFG = {apiKey:'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',authDomain:'budget-58f12.firebaseapp.com',projectId:'budget-58f12',storageBucket:'budget-58f12.firebasestorage.app',messagingSenderId:'327922790999',appId:'1:327922790999:web:076a60cf85287d3d38e912'};
   if (!firebase.apps.length) firebase.initializeApp(CFG);
   firebase.auth().getRedirectResult().catch(function(){});
   firebase.auth().onAuthStateChanged(function(user) {
-    if (user && user.email.toLowerCase() === 'baps.renard@gmail.com') {
-      document.getElementById('auth-gate').style.display = 'none';
+    var ALLOWED = 'baps.renard@gmail.com';
+    if (!user || user.email.toLowerCase() !== ALLOWED) {
+      window.location.replace('index.html');
     } else {
-      window.location.href = 'index.html';
+      document.body.style.visibility = 'visible';
     }
   });
 })();
@@ -1259,6 +1255,7 @@
     </div>
 
     <div class="anchor-block" id="an-devises">
+    <div id="bce-status"><span class="bce-dot loading" id="bce-dot"></span><span id="bce-text">Connexion BCE en cours…</span></div>
       <div class="anchor-title">Devises — Taux BCE</div>
       <div class="grid">
         <div class="card wide">
@@ -2352,6 +2349,10 @@ async function fetchBCERate(from, to, dateVal) {
 }
 
 async function convertirDevise() {
+  const dot  = document.getElementById('bce-dot');
+  const txt  = document.getElementById('bce-text');
+  if (dot) { dot.className = 'bce-dot loading'; }
+  if (txt) txt.textContent = 'Connexion BCE…';
   // Récupération sécurisée des valeurs
   const montantEl = document.getElementById('dev_montant');
   const fromEl    = document.getElementById('dev_from');
@@ -2381,6 +2382,9 @@ async function convertirDevise() {
 
   try {
     const { rate, date } = await fetchBCERate(from, to, dateVal);
+    const dot2 = document.getElementById('bce-dot'), txt2 = document.getElementById('bce-text');
+    if (dot2) dot2.className = 'bce-dot ok';
+    if (txt2) txt2.textContent = 'BCE · ' + date;
     const result = montant * rate;
     const isHistorique = dateVal && dateVal !== '';
 
@@ -2396,6 +2400,9 @@ async function convertirDevise() {
     showResult('res_dev');
 
   } catch(e) {
+    const dot3 = document.getElementById('bce-dot'), txt3 = document.getElementById('bce-text');
+    if (dot3) dot3.className = 'bce-dot err';
+    if (txt3) txt3.textContent = 'BCE indisponible';
     const msg = e.name === 'AbortError'
       ? 'Délai dépassé (10s) — vérifiez votre connexion internet.'
       : `${e.message || e} — La BCE ne publie pas de taux le week-end et les jours fériés : essayez un jour ouvré.`;

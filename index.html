@@ -1,183 +1,351 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mes outils · Bips</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <style>
-    :root {
-      --ink: #e2e2de; --ink-muted: #666662; --rule: #2c2c28;
-      --gold: #c8a040; --green: #5c8f60; --blue: #6496c8;
-      --danger: #c84040; --bg: #111110;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      min-height: 100vh; background: var(--bg);
-      background-image:
-        radial-gradient(ellipse 70% 50% at 15% 15%, rgba(200,160,64,.07) 0%, transparent 65%),
-        radial-gradient(ellipse 60% 50% at 85% 80%, rgba(100,148,200,.08) 0%, transparent 65%);
-      color: var(--ink); font-family: 'Jost', sans-serif; font-weight: 300;
-      display: flex; align-items: center; justify-content: center; padding: 48px 24px;
-    }
-    .wrapper { width: 100%; max-width: 380px; }
-    .site-header { padding-bottom: 36px; border-bottom: 1px solid var(--rule); margin-bottom: 36px; }
-    .site-eyebrow { font-size: 9px; letter-spacing: .45em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 14px; }
-    .site-title { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300; line-height: 1; }
-    .site-title em { font-style: italic; color: var(--gold); }
-    .site-sub { margin-top: 10px; font-size: 11px; color: var(--ink-muted); letter-spacing: .05em; }
-
-    /* Spinner */
-    .spinner { width: 28px; height: 28px; margin: 0 auto;
-      border: 1.5px solid rgba(200,160,64,.2); border-top-color: var(--gold);
-      border-radius: 50%; animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Bouton Google */
-    #btn-signin {
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      background: none; border: 1px solid rgba(200,160,64,.3); color: var(--gold);
-      cursor: pointer; font-family: 'Jost', sans-serif; font-size: 12px;
-      font-weight: 400; letter-spacing: .12em; text-transform: uppercase;
-      padding: 14px 28px; border-radius: 4px; width: 100%;
-      transition: border-color .2s, background .2s;
-    }
-    #btn-signin:hover { border-color: var(--gold); background: rgba(200,160,64,.06); }
-    #btn-signin svg { width: 16px; height: 16px; flex-shrink: 0; }
-    #msg-denied { display: none; text-align: center; font-size: 13px; color: var(--danger); }
-
-    /* Cards */
-    #cards { display: none; flex-direction: column; }
-    .card {
-      display: flex; align-items: center; gap: 18px; text-decoration: none;
-      padding: 20px 4px; border-bottom: 1px solid var(--rule);
-      transition: padding-left .2s;
-    }
-    .card:first-child { border-top: 1px solid var(--rule); }
-    .card:hover { padding-left: 8px; }
-    .card:hover .card-arrow { opacity: 1; transform: translateX(4px); }
-    .card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; border: 1px solid var(--rule); }
-    .card-budget    .card-icon { border-color: rgba(200,160,64,.25); background: rgba(200,160,64,.06); }
-    .card-habitudes .card-icon { border-color: rgba(92,143,96,.25);  background: rgba(92,143,96,.06); }
-    .card-calc      .card-icon { border-color: rgba(100,150,200,.25); background: rgba(100,150,200,.06); }
-    .card-text { flex: 1; display: flex; flex-direction: column; gap: 3px; }
-    .card-label { font-size: 14px; font-weight: 400; }
-    .card-sub { font-size: 10px; color: var(--ink-muted); letter-spacing: .05em; }
-    .card-arrow { font-size: 14px; opacity: 0; transition: opacity .2s, transform .2s; color: var(--ink-muted); }
-    .card-budget    .card-arrow { color: var(--gold); }
-    .card-habitudes .card-arrow { color: var(--green); }
-    .card-calc      .card-arrow { color: var(--blue); }
-    .footer { margin-top: 28px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--ink-muted); }
-    #btn-signout { background: none; border: none; cursor: pointer; font-size: 10px; color: var(--ink-muted); font-family: 'Jost', sans-serif; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bips · Espace personnel</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<style>
+:root{--bg:#0c0d10;--s:#13141a;--b:#22242c;--ink:#e0e0dc;--muted:#6b6e7a;--dim:#363840;--gold:#c9a96e;--gd:rgba(201,169,110,.1);--em:#4caf82;--rose:#d97070;--blue:#6aafd6}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);background-image:radial-gradient(ellipse 80% 60% at 10% 0%,rgba(201,169,110,.06) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 90% 100%,rgba(106,175,214,.07) 0%,transparent 60%);color:var(--ink);font-family:'Jost',sans-serif;font-weight:300;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px 60px;min-height:100%}
+/* LOGIN SCREEN */
+#screen-login{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 100px);width:100%;max-width:460px;gap:32px;text-align:center}
+.login-title{font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:300;line-height:1;color:var(--ink)}
+.login-title em{font-style:italic;color:var(--gold)}
+.login-sub{font-size:12px;color:var(--muted);letter-spacing:.08em}
+.login-rule{width:48px;height:1px;background:var(--b)}
+#btn-google-signin{display:flex;align-items:center;justify-content:center;gap:12px;background:none;border:1px solid rgba(201,169,110,.3);color:var(--gold);cursor:pointer;font-family:'Jost',sans-serif;font-size:13px;font-weight:400;letter-spacing:.1em;padding:14px 32px;border-radius:6px;width:100%;max-width:280px;transition:border-color .2s,background .2s}
+#btn-google-signin:hover{border-color:var(--gold);background:var(--gd)}
+#btn-google-signin svg{width:18px;height:18px;flex-shrink:0}
+#msg-denied{display:none;font-size:13px;color:var(--rose);letter-spacing:.05em}
+.login-spinner{display:none;width:30px;height:30px;border:1.5px solid rgba(201,169,110,.15);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* APP SCREEN */
+#screen-app{display:none;flex-direction:column;width:100%;max-width:680px;gap:0}
+/* Header */
+.app-header{padding-bottom:28px;border-bottom:1px solid var(--b);margin-bottom:28px}
+.app-eyebrow{font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.app-title{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;line-height:1;color:var(--ink)}
+.app-title em{font-style:italic;color:var(--gold)}
+.app-date{margin-top:10px;font-size:12px;color:var(--muted);display:flex;gap:20px;flex-wrap:wrap}
+.app-date span{display:flex;gap:6px;align-items:center}
+.app-date strong{color:var(--ink)}
+/* Quote */
+.quote-block{padding:20px 0 24px;border-bottom:1px solid var(--b);margin-bottom:28px}
+.quote-text{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;font-weight:300;color:var(--ink);line-height:1.5;margin-bottom:8px}
+.quote-auth{font-size:11px;color:var(--muted);letter-spacing:.06em}
+/* Recap */
+.recap-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px}
+.recap-card{background:var(--s);border:1px solid var(--b);border-radius:8px;padding:16px 20px}
+.rc-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.rc-val{font-size:22px;font-family:'Cormorant Garamond',serif;color:var(--ink)}
+.rc-val.gold{color:var(--gold)}.rc-val.em{color:var(--em)}
+.rc-sub{font-size:11px;color:var(--muted);margin-top:4px}
+/* Motto */
+.motto-block{padding:24px 0 28px;border-top:1px solid var(--b);border-bottom:1px solid var(--b);margin-bottom:28px}
+.motto-eyebrow{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.motto-text{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;line-height:1.7;color:var(--ink)}
+.motto-text em{font-style:italic;color:var(--gold)}
+/* Navigation */
+.nav-cards{display:flex;flex-direction:column;gap:0;margin-bottom:28px}
+.card{display:flex;align-items:center;gap:18px;text-decoration:none;padding:18px 4px;border-bottom:1px solid var(--b);transition:padding-left .2s}
+.card:first-child{border-top:1px solid var(--b)}
+.card:hover{padding-left:8px}
+.card:hover .card-arr{opacity:1;transform:translateX(4px)}
+.card-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:1px solid var(--b)}
+.card-budget .card-icon{border-color:rgba(201,169,110,.25);background:rgba(201,169,110,.06)}
+.card-hab .card-icon{border-color:rgba(76,175,130,.25);background:rgba(76,175,130,.06)}
+.card-calc .card-icon{border-color:rgba(106,175,214,.25);background:rgba(106,175,214,.06)}
+.card-text{flex:1;display:flex;flex-direction:column;gap:3px}
+.card-name{font-size:15px;font-weight:400;color:var(--ink)}
+.card-desc{font-size:11px;color:var(--muted)}
+.card-arr{font-size:14px;opacity:0;transition:opacity .2s,transform .2s;flex-shrink:0}
+.card-budget .card-arr{color:var(--gold)}.card-hab .card-arr{color:var(--em)}.card-calc .card-arr{color:var(--blue)}
+/* Footer */
+.app-footer{display:flex;justify-content:flex-end;padding-top:8px}
+#btn-signout{background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted);font-family:'Jost',sans-serif;letter-spacing:.08em;transition:color .2s}
+#btn-signout:hover{color:var(--rose)}
+@media(max-width:520px){.app-title,.login-title{font-size:42px}.recap-grid{grid-template-columns:1fr}.app-date{flex-direction:column;gap:6px}}
+</style>
 </head>
 <body>
-<div class="wrapper">
-  <header class="site-header">
-    <div class="site-eyebrow">✦ Espace personnel</div>
-    <h1 class="site-title">Mes<br><em>outils.</em></h1>
-    <div class="site-sub">Budget · Habitudes · Calculateur DCG</div>
+
+<!-- ÉCRAN CONNEXION -->
+<div id="screen-login">
+  <div>
+    <div class="login-title">Espace<br><em>Bips.</em></div>
+    <div class="login-sub" style="margin-top:10px">Outil personnel · Accès restreint</div>
+  </div>
+  <div class="login-rule"></div>
+  <div class="login-spinner" id="spinner"></div>
+  <button id="btn-google-signin">
+    <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 7.9 2.9l5.7-5.7C34.5 6.5 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 12 24 12c3.1 0 5.8 1.1 7.9 2.9l5.7-5.7C34.5 6.5 29.5 4 24 4 16.3 4 9.7 8.4 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35.4 26.8 36 24 36c-5.2 0-9.6-3.3-11.3-8H6.1C9.5 35.5 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H24v8h11.3c-.8 2.2-2.3 4.1-4.2 5.5l6.2 5.2C41.6 36.1 44 30.5 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
+    Connexion avec Google
+  </button>
+  <div id="msg-denied">Accès refusé.</div>
+</div>
+
+<!-- ÉCRAN APP -->
+<div id="screen-app">
+  <header class="app-header">
+    <div class="app-eyebrow">✦ Espace personnel</div>
+    <h1 class="app-title">Mes<br><em>outils.</em></h1>
+    <div class="app-date">
+      <span>📅 <strong id="today-date">—</strong></span>
+      <span>🕐 Dernière visite : <strong id="last-visit">—</strong></span>
+    </div>
   </header>
 
-  <div id="screen-loading"><div class="spinner"></div></div>
-
-  <div id="screen-login" style="display:none;flex-direction:column;gap:20px;">
-    <button id="btn-signin">
-      <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 7.9 2.9l5.7-5.7C34.5 6.5 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 12 24 12c3.1 0 5.8 1.1 7.9 2.9l5.7-5.7C34.5 6.5 29.5 4 24 4 16.3 4 9.7 8.4 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35.4 26.8 36 24 36c-5.2 0-9.6-3.3-11.3-8H6.1C9.5 35.5 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.3 4.1-4.2 5.5l6.2 5.2C41.6 36.1 44 30.5 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
-      Connexion avec Google
-    </button>
-    <div id="msg-denied">Accès refusé.</div>
+  <div class="quote-block">
+    <div class="quote-text" id="quote-text">—</div>
+    <div class="quote-auth" id="quote-auth">—</div>
   </div>
 
-  <div id="cards">
+  <div class="recap-grid">
+    <div class="recap-card">
+      <div class="rc-label">Net disponible</div>
+      <div class="rc-val gold" id="rc-net">—</div>
+      <div class="rc-sub" id="rc-net-sub">Budget</div>
+    </div>
+    <div class="recap-card">
+      <div class="rc-label">Livret A · Solde prévu</div>
+      <div class="rc-val em" id="rc-la">—</div>
+      <div class="rc-sub" id="rc-la-sub">Dépôt : 250 €/mois</div>
+    </div>
+    <div class="recap-card">
+      <div class="rc-label">Habitude en cours</div>
+      <div class="rc-val" id="rc-hab" style="font-size:15px;font-weight:400;line-height:1.3">—</div>
+      <div class="rc-sub" id="rc-hab-sub">Programme</div>
+    </div>
+    <div class="recap-card">
+      <div class="rc-label">Objectif programme</div>
+      <div class="rc-val gold" id="rc-obj">—</div>
+      <div class="rc-sub">126 jours · 6 habitudes</div>
+    </div>
+  </div>
+
+  <div class="motto-block">
+    <div class="motto-eyebrow">✦ Devise personnelle</div>
+    <div class="motto-text">
+      Face à l'épreuve, une seule question compte : <em>as-tu le pouvoir d'agir ?</em><br>
+      Si oui, agis — l'obstacle devient chemin.<br>
+      Si non, accepte — l'inévitable devient silence.<br>
+      Dans les deux cas, <em>tu n'as pas de problème.</em><br>
+      Il ne reste que toi, entier, libre d'avancer.
+    </div>
+  </div>
+
+  <nav class="nav-cards">
     <a href="Budget_5_comptes_1_30_4.html" class="card card-budget">
       <div class="card-icon">📒</div>
-      <div class="card-text"><span class="card-label">Budget</span><span class="card-sub">Suivi mensuel · Livret A · Assurance Vie</span></div>
-      <span class="card-arrow">→</span>
+      <div class="card-text"><span class="card-name">Budget</span><span class="card-desc">Revenus · Charges · Livret A</span></div>
+      <span class="card-arr">→</span>
     </a>
-    <a href="habitudes_dark.html" class="card card-habitudes">
+    <a href="habitudes_dark.html" class="card card-hab">
       <div class="card-icon">✅</div>
-      <div class="card-text"><span class="card-label">Habitudes</span><span class="card-sub">6 habitudes · 126 jours · tracker quotidien</span></div>
-      <span class="card-arrow">→</span>
+      <div class="card-text"><span class="card-name">Habitudes</span><span class="card-desc">6 habitudes · 126 jours · Semaine & Week-end</span></div>
+      <span class="card-arr">→</span>
     </a>
     <a href="calculateur_financier_DCG.html" class="card card-calc">
       <div class="card-icon">🧮</div>
-      <div class="card-text"><span class="card-label">Calculateur DCG</span><span class="card-sub">Finance · Compta · Fiscal · Outils</span></div>
-      <span class="card-arrow">→</span>
+      <div class="card-text"><span class="card-name">Calculateur DCG</span><span class="card-desc">Finance · Compta · Fiscal · PCG 2022</span></div>
+      <span class="card-arr">→</span>
     </a>
-  </div>
+  </nav>
 
-  <div class="footer">
-    <span id="user-email"></span>
-    <button id="btn-signout" style="display:none">Déconnexion</button>
+  <div class="app-footer">
+    <button id="btn-signout">Déconnexion</button>
   </div>
 </div>
 
 <script>
-const ALLOWED = 'baps.renard@gmail.com';
-const CFG = {
-  apiKey:'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',
-  authDomain:'budget-58f12.firebaseapp.com',
-  projectId:'budget-58f12',
-  storageBucket:'budget-58f12.firebasestorage.app',
-  messagingSenderId:'327922790999',
-  appId:'1:327922790999:web:076a60cf85287d3d38e912'
-};
+// ══════════════ CONFIG ══════════════
+const FB={apiKey:'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',authDomain:'budget-58f12.firebaseapp.com',projectId:'budget-58f12',storageBucket:'budget-58f12.firebasestorage.app',messagingSenderId:'327922790999',appId:'1:327922790999:web:076a60cf85287d3d38e912'};
+const ALLOWED='baps.renard@gmail.com';
+if(!firebase.apps.length)firebase.initializeApp(FB);
+const auth=firebase.auth();
 
-if (!firebase.apps.length) firebase.initializeApp(CFG);
-const auth = firebase.auth();
+// ══════════════ ÉLÉMENTS ══════════════
+const elLogin=document.getElementById('screen-login');
+const elApp=document.getElementById('screen-app');
+const elBtn=document.getElementById('btn-google-signin');
+const elSpinner=document.getElementById('spinner');
+const elDenied=document.getElementById('msg-denied');
+const elSignout=document.getElementById('btn-signout');
 
-const elLoading = document.getElementById('screen-loading');
-const elLogin   = document.getElementById('screen-login');
-const elCards   = document.getElementById('cards');
-const elDenied  = document.getElementById('msg-denied');
-const elBtn     = document.getElementById('btn-signin');
-const elEmail   = document.getElementById('user-email');
-const elSignout = document.getElementById('btn-signout');
+// ══════════════ AUTH ══════════════
+auth.getRedirectResult().catch(()=>{});
 
-function showLogin(denied) {
-  elLoading.style.display = 'none';
-  elCards.style.display   = 'none';
-  elLogin.style.display   = 'flex';
-  elDenied.style.display  = denied ? 'block' : 'none';
-  elSignout.style.display = 'none';
-  elEmail.textContent     = '';
-}
-
-function showCards(user) {
-  elLoading.style.display = 'none';
-  elLogin.style.display   = 'none';
-  elCards.style.display   = 'flex';
-  elEmail.textContent     = user.email;
-  elSignout.style.display = 'block';
-}
-
-// Gérer le retour après redirect Google
-auth.getRedirectResult().catch(function() {});
-
-// Écouter les changements d'état
-auth.onAuthStateChanged(function(user) {
-  if (!user) {
+auth.onAuthStateChanged(user=>{
+  if(!user){
     showLogin(false);
-  } else if (user.email.toLowerCase() !== ALLOWED) {
+  } else if(user.email.toLowerCase()!==ALLOWED){
     auth.signOut();
     showLogin(true);
   } else {
-    showCards(user);
+    showApp(user);
   }
 });
 
-// Clic connexion → redirect (marche partout, même Brave)
-elBtn.onclick = function() {
-  elBtn.style.display    = 'none';
-  elDenied.style.display = 'none';
-  elLoading.style.display = 'block';
-  auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+elBtn.onclick=function(){
+  elBtn.style.display='none';
+  elDenied.style.display='none';
+  elSpinner.style.display='block';
+  const isMobile=/Android|iPhone|iPad|iPod|Opera Mini/i.test(navigator.userAgent);
+  const provider=new firebase.auth.GoogleAuthProvider();
+  if(isMobile){
+    auth.signInWithRedirect(provider);
+  } else {
+    auth.signInWithPopup(provider).catch(err=>{
+      if(err.code==='auth/popup-blocked'||err.code==='auth/popup-closed-by-user'){
+        auth.signInWithRedirect(provider);
+      } else {
+        elSpinner.style.display='none';
+        elBtn.style.display='flex';
+        console.error(err);
+      }
+    });
+  }
 };
 
-elSignout.onclick = function() { auth.signOut(); };
+elSignout.onclick=()=>auth.signOut();
+
+function showLogin(denied){
+  elApp.style.display='none';
+  elLogin.style.display='flex';
+  elSpinner.style.display='none';
+  elBtn.style.display='flex';
+  elDenied.style.display=denied?'block':'none';
+}
+
+function showApp(user){
+  elLogin.style.display='none';
+  elApp.style.display='flex';
+  initApp();
+}
+
+// ══════════════ APP ══════════════
+const QUOTES=[
+  {t:'"Le bonheur n\'est pas quelque chose de tout fait. Il vient de vos propres actions."',a:'— Dalaï-Lama'},
+  {t:'"Ce que nous faisons régulièrement définit ce que nous sommes."',a:'— Aristote'},
+  {t:'"La discipline est le pont entre les objectifs et les réalisations."',a:'— Jim Rohn'},
+  {t:'"Ne remets pas à demain ce que tu peux commencer aujourd\'hui."',a:'— Benjamin Franklin'},
+  {t:'"Le succès, c\'est tomber sept fois et se relever huit."',a:'— Proverbe japonais'},
+  {t:'"Un budget n\'est pas simplement une série de chiffres. C\'est l\'expression de nos valeurs."',a:'— Barack Obama'},
+  {t:'"L\'argent est un outil. Utilisé correctement, il produit quelque chose. Utilisé incorrectement, il consume."',a:'— Rand Leeb-du Toit'},
+  {t:'"La liberté financière consiste à avoir assez d\'argent pour ne pas avoir à penser à l\'argent."',a:'— Suze Orman'},
+  {t:'"Chaque expert a d\'abord été un débutant."',a:'— Helen Hayes'},
+  {t:'"La connaissance s\'investit. Ça rapporte toujours les meilleurs intérêts."',a:'— Benjamin Franklin'},
+  {t:'"Le seul moyen de faire du bon travail est d\'aimer ce qu\'on fait."',a:'— Steve Jobs'},
+  {t:'"Votre temps est limité. Ne le gâchez pas à vivre la vie de quelqu\'un d\'autre."',a:'— Steve Jobs'},
+  {t:'"Ce n\'est pas parce que les choses sont difficiles que nous n\'osons pas. C\'est parce que nous n\'osons pas qu\'elles sont difficiles."',a:'— Sénèque'},
+  {t:'"La première règle d\'un investissement rentable : ne jamais perdre d\'argent."',a:'— Warren Buffett'},
+  {t:'"Ne mesurez pas vos richesses à l\'argent que vous avez, mais aux intérêts que vous avez perdus à ne pas investir."',a:'— Warren Buffett'},
+  {t:'"La patience est une forme de sagesse."',a:'— Thich Nhat Hanh'},
+  {t:'"Investissez dans vous-même. Votre carrière est le moteur de votre patrimoine."',a:'— Paul Clitheroe'},
+  {t:'"Le futur appartient à ceux qui croient en la beauté de leurs rêves."',a:'— Eleanor Roosevelt'},
+  {t:'"L\'éducation est l\'arme la plus puissante pour changer le monde."',a:'— Nelson Mandela'},
+  {t:'"Les obstacles ne peuvent pas m\'arrêter. La moindre résistance cède à la persévérance."',a:'— Leonardo da Vinci'},
+  {t:'"Épictète disait : ce qui dépend de nous, c\'est notre jugement. Ce qui ne dépend pas de nous, c\'est le reste."',a:'— Épictète'},
+  {t:'"La comptabilité est le langage des affaires."',a:'— Warren Buffett'},
+  {t:'"L\'ambition est le premier pas vers le succès. Le second, c\'est l\'action."',a:'— Orville Dewey'},
+  {t:'"Votre réputation est construite par vos habitudes."',a:'— Simon Sinek'},
+  {t:'"Petit à petit l\'oiseau fait son nid."',a:'— Proverbe français'},
+  {t:'"Il n\'y a pas de raccourci vers un endroit qui en vaut la peine."',a:'— Beverly Sills'},
+  {t:'"Levez-vous tôt, travaillez dur, trouvez le pétrole."',a:'— J. Paul Getty (parodié : trouvez votre objectif)'},
+  {t:'"Un penny épargné est un penny gagné."',a:'— Benjamin Franklin'},
+  {t:'"La perfection n\'est pas accessible, mais en visant la perfection, on peut atteindre l\'excellence."',a:'— Vince Lombardi'},
+  {t:'"Ce que l\'on sait avec certitude, c\'est que l\'on ne sait rien avec certitude."',a:'— Socrate'},
+  {t:'"L\'argent mal géré est une source de servitude. L\'argent bien géré est une source de liberté."',a:'— Anonymous'}
+];
+
+function getQuote(){const d=new Date();const i=d.getDate()%QUOTES.length;return QUOTES[i];}
+
+const MOIS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const JOURS=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+
+function formatDate(d){return `${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]} ${d.getFullYear()}`;}
+function formatDateShort(d){return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;}
+
+function initApp(){
+  const now=new Date();
+  // Date
+  document.getElementById('today-date').textContent=formatDate(now);
+  // Dernière visite
+  const lv=localStorage.getItem('bips_last_visit');
+  document.getElementById('last-visit').textContent=lv||'Première visite';
+  localStorage.setItem('bips_last_visit',formatDate(now));
+  // Citation
+  const q=getQuote();
+  document.getElementById('quote-text').textContent=q.t;
+  document.getElementById('quote-auth').textContent=q.a;
+  // Récap budget
+  loadBudgetRecap();
+  // Récap habitudes
+  loadHabRecap();
+}
+
+function loadBudgetRecap(){
+  try{
+    const raw=localStorage.getItem('bips_budget_v1');
+    if(raw){
+      const s=JSON.parse(raw);
+      const rev=(s.rev||[]).reduce((a,i)=>a+(parseFloat(i.v)||0),0);
+      const cha=(s.cha||[]).reduce((a,i)=>a+(parseFloat(i.v)||0),0);
+      const net=rev-cha;
+      const fmt=n=>n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
+      document.getElementById('rc-net').textContent=fmt(net)+' €';
+      document.getElementById('rc-net').style.color=net>=0?'var(--gold)':'var(--rose)';
+      document.getElementById('rc-net-sub').textContent=`Revenus ${fmt(rev)} € · Charges ${fmt(cha)} €`;
+      // Livret A prévisionnel (1 mois)
+      const la=s.la||{solde:0,mens:250,taux:3};
+      const dep=la.mens||250;
+      const int=(la.solde+dep)*((la.taux||3)/100/12);
+      const sol=(la.solde||0)+dep+int;
+      document.getElementById('rc-la').textContent=sol.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+      document.getElementById('rc-la-sub').textContent=`Dépôt mensuel : ${dep} € · Taux : ${la.taux||3}%`;
+    } else {
+      document.getElementById('rc-net').textContent='—';
+      document.getElementById('rc-la').textContent='—';
+    }
+  }catch(e){document.getElementById('rc-net').textContent='—';}
+}
+
+function loadHabRecap(){
+  try{
+    const raw=localStorage.getItem('bips_habitudes_v1')||localStorage.getItem('habitudes_bips');
+    if(raw){
+      const s=JSON.parse(raw);
+      const HABITS=['Routine complète du soir','Vêtements prêts le dimanche','Repas du midi préparé','Alimentation équilibrée','Alimentation saine','Libération de la dépendance'];
+      // Trouver l'habitude active
+      let active=0;
+      for(let h=1;h<=6;h++){
+        let count=0,last3=0;
+        for(let d=1;d<=21;d++) if(s['tracker_'+h+'_'+d]) count++;
+        if(s['tracker_'+h+'_19']&&s['tracker_'+h+'_20']&&s['tracker_'+h+'_21']) last3=1;
+        if(count>=18&&last3){active=h;}else{active=h;break;}
+      }
+      document.getElementById('rc-hab').textContent=HABITS[Math.min(active-1,5)]||'—';
+      document.getElementById('rc-hab-sub').textContent='Habitude '+active+' / 6';
+      if(s.date_debut){
+        const start=new Date(s.date_debut);
+        const today=new Date();
+        const diff=Math.floor((today-start)/(1000*60*60*24));
+        document.getElementById('rc-obj').textContent='J+'+diff+' / 126';
+      } else {
+        document.getElementById('rc-obj').textContent='Non démarré';
+      }
+    } else {
+      document.getElementById('rc-hab').textContent='Non démarré';
+      document.getElementById('rc-obj').textContent='—';
+    }
+  }catch(e){}
+}
 </script>
 </body>
 </html>
