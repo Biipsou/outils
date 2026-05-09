@@ -223,25 +223,19 @@
 <div id="auth-gate"><div class="g"></div></div>
 <script>
 (function() {
-  var CFG = {apiKey:'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',authDomain:'budget-58f12.firebaseapp.com',projectId:'budget-58f12',storageBucket:'budget-58f12.firebasestorage.app',messagingSenderId:'327922790999',appId:'1:327922790999:web:076a60cf85287d3d38e912'};
+  var CFG={apiKey:'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',authDomain:'budget-58f12.firebaseapp.com',projectId:'budget-58f12',storageBucket:'budget-58f12.firebasestorage.app',messagingSenderId:'327922790999',appId:'1:327922790999:web:076a60cf85287d3d38e912'};
   if (!firebase.apps.length) firebase.initializeApp(CFG);
   firebase.auth().getRedirectResult().catch(function(){});
-  firebase.auth().onAuthStateChanged(function(user) {
-    var ALLOWED = 'baps.renard@gmail.com';
-    if (!user || user.email.toLowerCase() !== ALLOWED) {
+  var unsubscribe = firebase.auth().onAuthStateChanged(function(user) {
+    unsubscribe(); // écouter UNE seule fois — la résolution définitive
+    if (!user || user.email.toLowerCase() !== 'baps.renard@gmail.com') {
       window.location.replace('index.html');
-    } // authenticated - page already visible
+    }
+    // Authentifié — la page est déjà visible
   });
 })();
 </script>
-  <div class="clo-label">Chargement…</div>
-  <button id="calc-btn-signin">Connexion Google</button>
 </div>
-<script>
-(function() {
-  if (!firebase.apps.length) firebase.initializeApp({apiKey:'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',authDomain:'budget-58f12.firebaseapp.com',projectId:'budget-58f12',storageBucket:'budget-58f12.firebasestorage.app',messagingSenderId:'327922790999',appId:'1:327922790999:web:076a60cf85287d3d38e912'});
-})();
-</script>
 
 <div class="sticky-top">
 <header>

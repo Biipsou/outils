@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget · Bips</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<style>
+:root{--bg:#141620;--s:#1c1f2e;--s2:#22263a;--b:#2a2f42;--ink:#dddde0;--muted:#7a7d90;--dim:#42455a;--gold:#c9a96e;--gd:rgba(201,169,110,.1);--em:#4caf82;--rose:#e07070;--sky:#6aafd6;--r:10px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);background-image:radial-gradient(ellipse 70% 50% at 15% 10%,rgba(201,169,110,.1) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 85% 85%,rgba(106,175,214,.09) 0%,transparent 60%);color:var(--ink);font-family:'Jost',sans-serif;font-weight:300;font-size:14px;min-height:100vh;display:flex;flex-direction:column}
+button{font-family:'Jost',sans-serif;cursor:pointer}
+input{font-family:'Jost',sans-serif}
+
+/* TOP BAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--s);border-bottom:1px solid var(--b);gap:12px;flex-shrink:0}
+.topbar-left{display:flex;align-items:center;gap:8px}
+.btn-nav{display:flex;align-items:center;gap:5px;background:none;border:1px solid var(--b);border-radius:6px;color:var(--muted);font-size:11px;padding:5px 10px;letter-spacing:.04em;transition:border-color .2s,color .2s}
+.btn-nav:hover{border-color:var(--gold);color:var(--gold)}
+.btn-nav svg{width:14px;height:14px;flex-shrink:0}
+.topbar-center{font-family:'DM Mono',monospace;font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);text-align:center;flex:1}
+.topbar-right{display:flex;gap:6px}
+
+/* TABS */
+.tabs{display:flex;justify-content:center;gap:4px;padding:14px 20px 0;background:var(--s);border-bottom:1px solid var(--b);flex-shrink:0}
+.tab{padding:8px 28px;font-size:12px;letter-spacing:.1em;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .2s,border-color .2s}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab:hover:not(.active){color:var(--ink)}
+
+/* CONTENT */
+.content{flex:1;padding:20px;max-width:960px;width:100%;margin:0 auto}
+.panel{display:none}.panel.active{display:block}
+
+/* SUMMARY HERO */
+.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px}
+.sum-card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:16px 20px;position:relative;overflow:hidden}
+.sum-card::before{content:'';position:absolute;inset:0;border-radius:var(--r);opacity:.5;pointer-events:none}
+.sum-card.rev::before{background:linear-gradient(135deg,rgba(76,175,130,.06) 0%,transparent 60%)}
+.sum-card.cha::before{background:linear-gradient(135deg,rgba(224,112,112,.06) 0%,transparent 60%)}
+.sum-card.net::before{background:linear-gradient(135deg,rgba(201,169,110,.08) 0%,transparent 60%)}
+.sum-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.sum-val{font-family:'DM Mono',monospace;font-size:24px;font-weight:400}
+.sum-val.pos{color:var(--em)}.sum-val.neg{color:var(--rose)}.sum-val.neu{color:var(--gold)}
+
+/* LISTS GRID */
+.lists-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.list-card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);display:flex;flex-direction:column;overflow:hidden}
+.list-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--b);background:var(--s2)}
+.list-head-title{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.btn-add{width:24px;height:24px;border:1px solid var(--b);border-radius:5px;background:none;color:var(--muted);font-size:17px;display:flex;align-items:center;justify-content:center;line-height:1;transition:border-color .2s,color .2s}
+.btn-add:hover{border-color:var(--gold);color:var(--gold)}
+.list-body{flex:1;overflow-y:auto;max-height:400px;padding:6px 8px}
+.item-row{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;transition:background .15s}
+.item-row:hover{background:rgba(255,255,255,.03)}
+.item-emoji{font-size:14px;width:20px;flex-shrink:0;text-align:center}
+.item-label{flex:1;background:none;border:none;color:var(--ink);font-family:'Jost',sans-serif;font-size:13px;font-weight:300;outline:none;min-width:0}
+.item-val{width:80px;background:none;border:none;font-family:'DM Mono',monospace;font-size:13px;text-align:right;outline:none}
+.item-val.rv{color:var(--em)}.item-val.ch{color:var(--rose)}
+.item-sfx{font-size:11px;color:var(--dim);flex-shrink:0}
+.btn-del{width:17px;height:17px;border:none;background:none;color:var(--dim);font-size:14px;display:flex;align-items:center;justify-content:center;border-radius:3px;line-height:1;transition:color .15s,background .15s;flex-shrink:0}
+.btn-del:hover{color:var(--rose);background:rgba(224,112,112,.1)}
+.sep-row{height:1px;background:var(--b);margin:4px 0}
+.list-foot{padding:10px 16px;border-top:1px solid var(--b);display:flex;justify-content:space-between;font-size:12px;font-family:'DM Mono',monospace;color:var(--muted);background:var(--s2)}
+.list-foot strong{color:var(--ink)}
+
+/* LIVRET A */
+.la-layout{display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start}
+.la-card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.la-card:last-child{margin-bottom:0}
+.la-card-head{background:var(--s2);padding:10px 16px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--b)}
+.la-card-body{padding:16px}
+.la-f{margin-bottom:12px}
+.la-f:last-child{margin-bottom:0}
+.la-f label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
+.la-f input{width:100%;background:var(--bg);border:1px solid var(--b);border-radius:6px;padding:8px 12px;color:var(--ink);font-family:'DM Mono',monospace;font-size:14px;outline:none;transition:border-color .2s}
+.la-f input:focus{border-color:var(--gold)}
+.btn-valider{width:100%;margin-top:14px;padding:10px;background:var(--gd);border:1px solid rgba(201,169,110,.4);border-radius:6px;color:var(--gold);font-size:12px;letter-spacing:.1em;text-transform:uppercase;transition:background .2s,border-color .2s}
+.btn-valider:hover{background:rgba(201,169,110,.2);border-color:var(--gold)}
+.bonus-note{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:12px;padding:8px 10px;background:rgba(106,175,214,.06);border:1px solid rgba(106,175,214,.15);border-radius:6px}
+.bonus-list{display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto}
+.bonus-item{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--bg);border-radius:5px;font-size:12px;font-family:'DM Mono',monospace}
+.bi-date{color:var(--muted)}.bi-val{color:var(--em)}
+.btn-db{border:none;background:none;color:var(--dim);cursor:pointer;font-size:14px;transition:color .15s}
+.btn-db:hover{color:var(--rose)}
+.empty-bonus{color:var(--dim);font-size:12px;text-align:center;padding:12px}
+.prev-wrap{overflow-x:auto}
+.prev-table{width:100%;border-collapse:collapse;font-size:12px}
+.prev-table th{text-align:left;padding:8px 12px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--b);font-weight:400}
+.prev-table td{padding:8px 12px;border-bottom:1px solid rgba(42,47,66,.8);font-family:'DM Mono',monospace}
+.prev-table tr.cur td{background:rgba(201,169,110,.05)}
+.td-m{color:var(--ink)}.td-d{color:var(--sky)}.td-i{color:var(--dim)}.td-s{color:var(--em);font-weight:400}
+
+@media(max-width:680px){
+  .summary,.lists-grid,.la-layout{grid-template-columns:1fr}
+  .content{padding:12px}.topbar{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <button class="btn-nav" onclick="location.href='index.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      Accueil
+    </button>
+  </div>
+  <div class="topbar-center">Budget · Bips</div>
+  <div class="topbar-right">
+    <button class="btn-nav" onclick="location.href='habitudes.html'">✅ Habitudes</button>
+    <button class="btn-nav" onclick="location.href='calculateur_financier_DCG.html'">🧮 Calculateur</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('general',this)">Vue générale</button>
+  <button class="tab" onclick="switchTab('livreta',this)">📈 Livret A</button>
+</div>
+
+<div class="content">
+
+  <!-- TAB GÉNÉRAL -->
+  <div id="panel-general" class="panel active">
+    <div class="summary">
+      <div class="sum-card rev"><div class="sum-label">Revenus</div><div class="sum-val pos" id="s-rev">—</div></div>
+      <div class="sum-card cha"><div class="sum-label">Charges</div><div class="sum-val neg" id="s-cha">—</div></div>
+      <div class="sum-card net"><div class="sum-label">Net disponible</div><div class="sum-val neu" id="s-net">—</div></div>
+    </div>
+    <div class="lists-grid">
+      <div class="list-card">
+        <div class="list-head"><span class="list-head-title">💚 Revenus</span><button class="btn-add" onclick="addItem('rev')">+</button></div>
+        <div class="list-body" id="list-rev"></div>
+        <div class="list-foot"><span>Total revenus</span><strong id="tot-rev">0 €</strong></div>
+      </div>
+      <div class="list-card">
+        <div class="list-head"><span class="list-head-title">🔴 Charges</span><button class="btn-add" onclick="addItem('cha')">+</button></div>
+        <div class="list-body" id="list-cha"></div>
+        <div class="list-foot"><span>Total charges</span><strong id="tot-cha">0 €</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB LIVRET A -->
+  <div id="panel-livreta" class="panel">
+    <div class="la-layout">
+      <div>
+        <div class="la-card">
+          <div class="la-card-head">Configuration</div>
+          <div class="la-card-body">
+            <div class="la-f"><label>Solde actuel (€)</label><input type="number" id="la-solde" value="0"></div>
+            <div class="la-f"><label>Dépôt mensuel de base (€)</label><input type="number" id="la-mens" value="250"></div>
+            <div class="la-f"><label>Taux annuel Livret A (%)</label><input type="number" id="la-taux" value="1.5" step="0.1"></div>
+            <button class="btn-valider" onclick="validerConfig()">✓ Valider et calculer</button>
+          </div>
+        </div>
+        <div class="la-card">
+          <div class="la-card-head">Virements bonus enregistrés</div>
+          <div class="la-card-body">
+            <div class="bonus-note">💡 Les virements bonus sont détectés automatiquement depuis la ligne <strong>Épargne Bonus</strong> dans les charges. Chaque fois que tu modifies cette valeur, un virement bonus est enregistré ici avec la date du jour.</div>
+            <div class="bonus-list" id="bl"></div>
+          </div>
+        </div>
+      </div>
+      <div class="la-card" style="margin-bottom:0">
+        <div class="la-card-head">Prévisionnel Livret A — 12 mois</div>
+        <div class="la-card-body">
+          <div class="prev-wrap">
+            <table class="prev-table">
+              <thead><tr><th>Mois</th><th>Dépôt</th><th>Intérêts</th><th>Solde fin</th></tr></thead>
+              <tbody id="pt"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── FIREBASE ──
+const FB={apiKey:'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',authDomain:'budget-58f12.firebaseapp.com',projectId:'budget-58f12',storageBucket:'budget-58f12.firebasestorage.app',messagingSenderId:'327922790999',appId:'1:327922790999:web:076a60cf85287d3d38e912'};
+const ALLOWED='baps.renard@gmail.com',SK='bips_budget_v2';
+let _db=null,_uid=null;
+if(!firebase.apps.length)firebase.initializeApp(FB);
+firebase.auth().getRedirectResult().catch(()=>{});
+const _unsub = firebase.auth().onAuthStateChanged(user=>{
+  _unsub();
+  if(!user||user.email.toLowerCase()!==ALLOWED){window.location.replace('index.html');return;}
+  _uid=user.uid;_db=firebase.firestore();loadData();
+});
+
+async function dbSave(){if(!_db||!_uid)return;const v=JSON.stringify(STATE);_db.collection('users').doc(_uid).collection('data').doc(SK).set({value:v}).catch(console.warn);localStorage.setItem(SK,v);}
+async function dbLoad(){if(!_db||!_uid)return null;try{const s=await _db.collection('users').doc(_uid).collection('data').doc(SK).get();return s.exists?s.data().value:null;}catch(e){return null;}}
+
+// ── ÉTAT PAR DÉFAUT ──
+const DEFAULTS = {
+  rev:[
+    {id:'r1',e:'💼',l:'Salaire net',v:1815.20},
+    {id:'r2',e:'🎫',l:'Tickets restaurant (face)',v:286.00},
+    {id:'r3',e:'🏛️',l:'CAF (Prime activité / APL)',v:117.11}
+  ],
+  cha:[
+    // Abonnements & services
+    {id:'c1', e:'📱',l:'Téléphone',v:15.99,sep:false},
+    {id:'c2', e:'🎵',l:'Spotify',v:4.71,sep:false},
+    {id:'c3', e:'💻',l:'Microsoft 365',v:4.18,sep:false},
+    {id:'c4', e:'🏠',l:'Assurance Habitation',v:43.71,sep:false},
+    {id:'c5', e:'📶',l:'Internet',v:24.99,sep:false},
+    {id:'c6', e:'💊',l:'Mutuelle',v:45.52,sep:false},
+    {id:'c7', e:'⭐',l:'Prime',v:6.99,sep:false},
+    {id:'c8', e:'💧',l:'Eau',v:20.00,sep:false},
+    {id:'c9', e:'💰',l:'Épargne (Livret A)',v:250.00,sep:false},
+    {id:'c10',e:'🏡',l:'Loyer',v:821.95,sep:false},
+    {id:'c11',e:'🚌',l:'Transports',v:69.00,sep:false},
+    {id:'c12',e:'💳',l:'CB Premium',v:5.00,sep:false},
+    {id:'c13',e:'⚡',l:'Électricité',v:87.00,sep:false},
+    {id:'c14',e:'🛡️',l:'Assurance Vie',v:20.00,sep:false},
+    // Séparateur 1 — bonus épargne
+    {id:'sep1',sep:true},
+    {id:'c15',e:'🎁',l:'Épargne Bonus',v:0,sep:false,isBonus:true},
+    // Séparateur 2 — crédits en cours
+    {id:'sep2',sep:true,label:'Crédits en cours'},
+    {id:'c16',e:'📋',l:'Crédit Perso (fin 02/2027)',v:68.91,sep:false,isCredit:true,end:'2027-02'},
+    {id:'c17',e:'🍎',l:'Crédit Apple (fin 11/2027)',v:83.28,sep:false,isCredit:true,end:'2027-11'}
+  ],
+  la:{solde:0,mens:250,taux:1.5,bonus:[]}
+};
+
+let STATE = JSON.parse(JSON.stringify(DEFAULTS));
+
+async function loadData(){
+  const raw = await dbLoad();
+  if(raw){
+    try{const s=JSON.parse(raw);if(s.rev)STATE.rev=s.rev;if(s.cha)STATE.cha=s.cha;if(s.la)STATE.la=s.la;}catch(e){}
+  } else {
+    const l=localStorage.getItem(SK);
+    if(l){try{const s=JSON.parse(l);if(s.rev)STATE.rev=s.rev;if(s.cha)STATE.cha=s.cha;if(s.la)STATE.la=s.la;}catch(e){}}
+  }
+  renderAll();
+}
+
+// ── HELPERS ──
+const fmt = n=>Number(n).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const eur = n=>fmt(n)+' €';
+const today = ()=>new Date().toISOString().slice(0,10);
+
+// ── RENDER LISTS ──
+function renderList(type){
+  const items=STATE[type],c=document.getElementById('list-'+type),isR=type==='rev';
+  c.innerHTML='';
+  items.forEach((it,i)=>{
+    if(it.sep){
+      const sepEl=document.createElement('div');
+      // Vérifier s'il y a des items non-sep après ce séparateur
+      const hasItems=items.slice(i+1).some(x=>!x.sep);
+      if(!hasItems){return;} // Ne pas afficher le séparateur si rien après
+      sepEl.className='sep-row';
+      c.appendChild(sepEl);
+      return;
+    }
+    const row=document.createElement('div');row.className='item-row';
+    const emoji=it.e||'•';
+    row.innerHTML=
+      `<span class="item-emoji">${emoji}</span>`+
+      `<input class="item-label" value="${(it.l||'').replace(/"/g,'&quot;')}" placeholder="Libellé" onchange="updateItem('${type}',${i},'l',this.value)">`+
+      `<input class="item-val ${isR?'rv':'ch'}" type="number" value="${it.v||0}" step="0.01" onchange="updateItem('${type}',${i},'v',parseFloat(this.value)||0)">`+
+      `<span class="item-sfx">€</span>`+
+      `<button class="btn-del" onclick="delItem('${type}',${i})" title="Supprimer">×</button>`;
+    c.appendChild(row);
+  });
+  renderSummary();
+}
+
+function updateItem(type,i,key,val){
+  STATE[type][i][key]=val;
+  // Si c'est la ligne Épargne Bonus et que la valeur change > 0, créer un bonus
+  if(type==='cha' && STATE[type][i].isBonus && key==='v' && parseFloat(val)>0){
+    const old=STATE.la.bonus.find(b=>b.date===today()&&b.source==='auto');
+    if(!old){
+      STATE.la.bonus.push({date:today(),montant:parseFloat(val),source:'auto'});
+      STATE.la.bonus.sort((a,b)=>a.date.localeCompare(b.date));
+    } else {
+      old.montant=parseFloat(val);
+    }
+  }
+  renderSummary();save();
+}
+
+function renderSummary(){
+  const items=STATE.cha.filter(i=>!i.sep);
+  const tR=STATE.rev.reduce((s,i)=>s+(parseFloat(i.v)||0),0);
+  const tC=items.reduce((s,i)=>s+(parseFloat(i.v)||0),0);
+  const n=tR-tC;
+  document.getElementById('s-rev').textContent=eur(tR);
+  document.getElementById('s-cha').textContent=eur(tC);
+  document.getElementById('s-net').textContent=eur(n);
+  document.getElementById('s-net').className='sum-val '+(n>=0?'neu':'neg');
+  document.getElementById('tot-rev').textContent=eur(tR);
+  document.getElementById('tot-cha').textContent=eur(tC);
+}
+
+function addItem(type){
+  const e=type==='rev'?'💵':'💸';
+  STATE[type].push({id:type+Date.now(),e,l:'Nouveau',v:0,sep:false});
+  renderList(type);save();
+}
+function delItem(type,i){STATE[type].splice(i,1);renderList(type);save();}
+
+// ── LIVRET A ──
+function validerConfig(){
+  STATE.la.solde=parseFloat(document.getElementById('la-solde').value)||0;
+  STATE.la.mens =parseFloat(document.getElementById('la-mens').value)||250;
+  STATE.la.taux =parseFloat(document.getElementById('la-taux').value)||1.5;
+  renderPrev();renderBonusList();save();
+}
+
+function renderLaConfig(){
+  document.getElementById('la-solde').value=STATE.la.solde;
+  document.getElementById('la-mens').value=STATE.la.mens;
+  document.getElementById('la-taux').value=STATE.la.taux;
+  renderBonusList();renderPrev();
+}
+
+function delBonus(i){STATE.la.bonus.splice(i,1);renderBonusList();renderPrev();save();}
+
+function renderBonusList(){
+  const bl=document.getElementById('bl');
+  if(!STATE.la.bonus.length){bl.innerHTML='<div class="empty-bonus">Aucun virement bonus enregistré.<br>Modifie la ligne Épargne Bonus dans les charges.</div>';return;}
+  bl.innerHTML=STATE.la.bonus.map((b,i)=>
+    `<div class="bonus-item"><span class="bi-date">${b.date}</span><span class="bi-val">+${fmt(b.montant)} €</span><button class="btn-db" onclick="delBonus(${i})">×</button></div>`
+  ).join('');
+}
+
+function renderPrev(){
+  const tb=document.getElementById('pt');
+  const now=new Date();
+  const curKey=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const taux_m=(STATE.la.taux/100)/12;
+  let solde=STATE.la.solde;
+  const M=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  let y=now.getFullYear(),m=now.getMonth(),rows='';
+  for(let i=0;i<12;i++){
+    const key=`${y}-${String(m+1).padStart(2,'0')}`;
+    const bonus=STATE.la.bonus.filter(b=>b.date.startsWith(key)).reduce((s,b)=>s+b.montant,0);
+    const dep=STATE.la.mens+bonus;
+    const int=(solde+dep)*taux_m;
+    solde+=dep+int;
+    rows+=`<tr class="${key===curKey?'cur':''}"><td class="td-m">${M[m]} ${y}${key===curKey?' ◈':''}</td><td class="td-d">+${fmt(dep)}</td><td class="td-i">+${int.toFixed(2)}</td><td class="td-s">${fmt(solde)} €</td></tr>`;
+    m++;if(m>11){m=0;y++;}
+  }
+  tb.innerHTML=rows;
+}
+
+// ── TABS ──
+function switchTab(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='livreta')renderLaConfig();
+}
+
+// ── SAVE ──
+let _st;function save(){clearTimeout(_st);_st=setTimeout(dbSave,800);}
+function renderAll(){renderList('rev');renderList('cha');renderSummary();}
+
+// Init
+document.addEventListener('DOMContentLoaded',()=>renderAll());
+</script>
+</body>
+</html>

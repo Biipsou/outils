@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon Programme — 6 Habitudes</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✅</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== SCREEN ===== */
+:root {
+  --ink: #e2e2de;
+  --ink-light: #a4a4a0;
+  --ink-muted: #666662;
+  --ink-faint: #3e3e3a;
+  --rule: #2c2c28;
+  --rule-light: #202020;
+  --accent: #5c8f60;
+  --accent2: #c06838;
+  --gold: #c8a040;
+  --bg: #111110;
+  --paper: #181817;
+  --phase-bg: #1e1e1c;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 80% 40% at 15% 10%, rgba(92, 143, 96, 0.13) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 85% 80%, rgba(100, 120, 180, 0.11) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(200, 160, 64, 0.06) 0%, transparent 70%);
+  color: var(--ink);
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  background: linear-gradient(
+    175deg,
+    rgba(92, 143, 96, 0.07) 0%,
+    rgba(24, 24, 23, 0) 18%,
+    rgba(24, 24, 23, 0) 75%,
+    rgba(100, 120, 180, 0.07) 100%
+  ), var(--paper);
+  min-height: 100vh;
+}
+
+/* ===== COVER ===== */
+.cover {
+  padding: 64px 64px 48px;
+  border-bottom: 2px solid var(--ink);
+  position: relative;
+}
+.cover-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 24px;
+  font-weight: 400;
+}
+.cover h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 62px;
+  font-weight: 300;
+  line-height: 1.0;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.cover h1 em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--accent);
+}
+.cover-sub {
+  font-size: 12px;
+  color: var(--ink-muted);
+  letter-spacing: 0.1em;
+  margin-top: 16px;
+}
+.cover-rule {
+  position: absolute;
+  right: 64px;
+  top: 64px;
+  bottom: 48px;
+  width: 1px;
+  background: var(--rule);
+}
+.cover-meta {
+  position: absolute;
+  right: 72px;
+  top: 72px;
+  text-align: right;
+  font-size: 11px;
+  color: var(--ink-muted);
+  line-height: 2;
+}
+.cover-meta strong { color: var(--ink-light); font-weight: 500; }
+
+/* ===== SECTION ===== */
+.section { padding: 48px 64px; border-bottom: 1px solid var(--rule); overflow: visible; }
+.section:last-child { border-bottom: none; }
+.timeline-table { width: 100%; border-collapse: collapse; overflow: visible; }
+.section:nth-child(2)  { border-left: 3px solid rgba(92, 143, 96, 0.45); }
+.section:nth-child(3)  { border-left: 3px solid rgba(100, 130, 200, 0.38); }
+.section:nth-child(4)  { border-left: 3px solid rgba(200, 160, 64, 0.38); }
+.section:nth-child(5)  { border-left: 3px solid rgba(180, 100, 80, 0.38); }
+.section:nth-child(6)  { border-left: 3px solid rgba(130, 90, 190, 0.38); }
+
+.section-label {
+  font-size: 9px;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+/* ===== TIMELINE TABLE ===== */
+.timeline-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.timeline-table th {
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  font-weight: 400;
+  text-align: center;
+  padding: 0 8px 12px;
+  border-bottom: 1px solid var(--rule);
+}
+.timeline-table th:nth-child(1) { width: 32px; }
+.timeline-table th:nth-child(2) { width: 130px; }
+.timeline-table th:nth-child(3) { width: 130px; }
+.timeline-table th:nth-child(4) { text-align: left; }
+.timeline-table th:nth-child(5) { width: 168px; text-align: left; }
+
+.habit-row td {
+  padding: 14px 8px;
+  border-bottom: 1px solid var(--rule-light);
+  vertical-align: top;
+}
+.habit-row td:first-child { padding-left: 0; }
+.habit-row td:last-child  { padding-right: 0; }
+.habit-row:last-child td { border-bottom: none; }
+
+.step-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--rule);
+  line-height: 1;
+  padding-right: 16px;
+  padding-top: 2px;
+}
+.habit-phase {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 2px;
+  margin-bottom: 4px;
+  font-weight: 400;
+}
+.phase-1 { background: #1a2e1c; color: #7ab87e; }
+.phase-2 { background: #1a1e2e; color: #7a9abe; }
+.phase-3 { background: #2e1a18; color: #c07868; }
+.phase-4 { background: #2c2818; color: #c0a060; }
+.phase-5 { background: #221a2e; color: #a070c0; }
+.phase-6 { background: #2e1818; color: #c06868; }
+
+.habit-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.habit-duration {
+  font-size: 10px;
+  color: var(--ink-muted);
+  margin-top: 2px;
+  letter-spacing: 0.05em;
+}
+.habit-tip {
+  font-size: 12px;
+  color: var(--ink-light);
+  line-height: 1.65;
+  padding-right: 16px;
+}
+.habit-tip strong { color: var(--ink); font-weight: 500; }
+.habit-tip .conseil {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--ink-muted);
+  border-left: 2px solid var(--rule);
+  padding-left: 8px;
+  font-style: italic;
+}
+.check-row-label {
+  font-size: 9px;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  text-align: center;
+}
+.checks {
+  display: grid;
+  grid-template-columns: repeat(7, 21px);
+  gap: 3px;
+}
+.check-box {
+  width: 21px;
+  height: 21px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s, border-color 0.15s;
+  position: relative;
+}
+.check-box.checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ===== DAILY SCHEDULE ===== */
+.schedule-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: stretch;
+}
+.schedule-col {
+  display: flex;
+  flex-direction: column;
+}
+.schedule-col > div.time-block:last-child,
+#evening-blocks > div.time-block:last-child { border-bottom: none; }
+
+.nouveau-block {
+  background: rgba(200, 160, 64, 0.08);
+  border-left: 3px solid var(--gold);
+  padding-left: 12px;
+  position: relative;
+}
+.nouveau-block .time { color: var(--gold); }
+.nouveau-block::after {
+  content: 'nouveau';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 8px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.7;
+  font-family: 'Jost', sans-serif;
+}
+.schedule-col h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 300;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule);
+}
+.schedule-col h3 em { font-style: italic; color: var(--accent); }
+.time-block {
+  display: flex;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule-light);
+  align-items: flex-start;
+}
+.time-block:last-child { border-bottom: none; }
+.time {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  min-width: 44px;
+  line-height: 1.2;
+}
+.time-label { font-size: 12.5px; line-height: 1.5; }
+.time-label strong { font-weight: 500; color: var(--ink); }
+.time-label small { display: block; font-size: 11px; color: var(--ink-muted); }
+.highlight-block {
+  background: var(--phase-bg);
+  border-left: 3px solid var(--accent);
+  padding-left: 12px;
+}
+.highlight-block .time { color: var(--accent); }
+
+/* ===== 21 DAYS TRACKER ===== */
+.schedule-intro {
+  font-size: 12px;
+  color: var(--ink-light);
+  line-height: 1.7;
+  margin-bottom: 24px;
+  max-width: 640px;
+  border-left: 2px solid var(--rule);
+  padding-left: 12px;
+}
+.tracker-intro {
+  font-size: 13px;
+  color: var(--ink-light);
+  line-height: 1.7;
+  margin-bottom: 28px;
+  max-width: 580px;
+}
+.tracker-habit {
+  margin-bottom: 20px;
+}
+.tracker-habit-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.tracker-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  min-width: 18px;
+}
+.tracker-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.tracker-boxes {
+  display: grid;
+  grid-template-columns: repeat(21, 1fr);
+  gap: 3px;
+}
+.tracker-box {
+  aspect-ratio: 1;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+.tracker-box.checked {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+.tracker-box.checked::before {
+  content: '✓' !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  color: white !important;
+  font-size: 10px !important;
+  font-family: 'Jost', sans-serif;
+  font-weight: 500;
+  line-height: 1;
+}
+.tracker-box.checked::after {
+  display: none !important;
+}
+.tracker-box::after {
+  content: attr(data-n);
+  position: absolute;
+  bottom: 1px;
+  right: 2px;
+  font-size: 6px;
+  color: var(--rule);
+  font-family: 'Jost', sans-serif;
+}
+.tracker-milestone {
+  border-color: var(--gold);
+  background: #1e1e1c;
+}
+.tracker-milestone::before {
+  content: '★';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 8px;
+  color: var(--gold);
+}
+.tracker-milestone.checked {
+  background: var(--gold) !important;
+  border-color: var(--gold) !important;
+}
+.tracker-milestone.checked::before {
+  content: '★' !important;
+  color: #1a1200 !important;
+  font-size: 10px !important;
+}
+
+/* ── CHECK-BOX MILESTONE (vue d'ensemble) ── */
+.check-box.milestone {
+  border-color: var(--gold);
+}
+.check-box.milestone::before {
+  content: '★';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 8px;
+  color: var(--gold);
+  line-height: 1;
+}
+.check-box.milestone.checked {
+  background: var(--gold) !important;
+  border-color: var(--gold) !important;
+}
+.check-box.milestone.checked::after {
+  content: '★' !important;
+  color: #1a1200 !important;
+  font-size: 11px !important;
+}
+.check-box.checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 11px;
+  line-height: 1;
+}
+
+/* ===== RULES ===== */
+.rules-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.rule-item {
+  padding: 20px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
+.rule-item h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--ink);
+}
+.rule-item p {
+  font-size: 12px;
+  color: var(--ink-light);
+  line-height: 1.65;
+}
+.rule-item.full { grid-column: 1 / -1; background: var(--phase-bg); }
+
+/* ===== HABIT BANNER ===== */
+.habit-banner {
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: var(--phase-bg);
+  border-left: 3px solid var(--accent);
+  border-radius: 2px;
+}
+.habit-banner-title {
+  font-size: 9px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 6px;
+}
+.habit-banner-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.habit-banner-focus {
+  font-size: 12px;
+  color: var(--ink-light);
+  line-height: 1.6;
+}
+.habit-banner-sunday {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--accent);
+  border-top: 1px solid var(--rule);
+  padding-top: 8px;
+}
+.habit-validated-badge {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 2px;
+  margin-left: 10px;
+  vertical-align: middle;
+  font-family: 'Jost', sans-serif;
+}
+.tracker-habit.validated .tracker-name {
+  color: var(--ink-muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--accent);
+}
+.tracker-habit.validated .tracker-boxes {
+  opacity: 0.5;
+}
+.validation-status {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  margin-top: 6px;
+  color: var(--ink-muted);
+}
+.validation-status.ok { color: var(--accent); }
+.validation-status.warn { color: var(--accent2); }
+
+/* ===== MANIFESTO ===== */
+.manifesto {
+  padding: 48px 64px;
+  text-align: center;
+  border-top: 2px solid var(--ink);
+}
+.manifesto-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.35;
+  color: var(--ink);
+  max-width: 600px;
+  margin: 0 auto 20px;
+}
+.manifesto-quote em { font-style: normal; font-weight: 600; }
+.manifesto-attr {
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+/* ===== PRINT ===== */
+@media print {
+  body { background: white; font-size: 11px; }
+  .page { max-width: 100%; box-shadow: none; }
+  .cover { padding: 32px 48px 32px; }
+  .cover h1 { font-size: 48px; }
+  .section { padding: 28px 48px; }
+  .no-print { display: none; }
+  .tracker-boxes { grid-template-columns: repeat(21, 1fr); }
+  .check-box { width: 14px; height: 14px; }
+  .checks { grid-template-columns: repeat(7, 14px); }
+  @page { margin: 0; size: A4; }
+  .page-break { page-break-before: always; }
+}
+
+/* DATE INPUTS */
+.cover-date-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-light);
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  font-weight: 300;
+  text-align: right;
+  padding: 2px 0;
+  cursor: pointer;
+  outline: none;
+  width: 130px;
+  color-scheme: dark;
+}
+.cover-date-input:hover,
+.cover-date-input:focus {
+  border-bottom-color: var(--accent);
+  color: var(--ink);
+}
+
+/* PRINT BUTTON removed */
+
+#btn-retour {
+  position: fixed; top: 16px; left: 20px; z-index: 10000;
+  display: flex; align-items: center; gap: 7px;
+  background: var(--surface, #13161d);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px; padding: 6px 14px;
+  font-family: 'DM Mono', monospace; font-size: 11px;
+  color: #7a8099; text-decoration: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  transition: color 0.15s, border-color 0.15s;
+}
+#btn-retour:hover { color: #e8e8e8; border-color: rgba(255,255,255,0.2); }
+
+  /* AUTH BADGE */
+  @keyframes lo-spin { to { transform: rotate(360deg); } }
+    position: fixed; top: 16px; right: 20px; z-index: 10000;
+    display: flex; align-items: center; gap: 8px;
+    background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 6px 14px 6px 10px;
+    font-family: monospace; font-size: 11px; color: #aaa;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  #btn-signout { background: none; border: none; color: #666; cursor: pointer; font-size: 10px; padding: 0; margin-left: 4px; }
+  #btn-signout:hover { color: #f07070; }
+  #btn-signin-hab { background: none; border: 1px solid rgba(180,160,120,0.4); color: #c9a96e; cursor: pointer; font-size: 11px; padding: 4px 12px; border-radius: 8px; }
+  #btn-signin-hab:hover { background: rgba(201,169,110,0.1); }
+
+  .dcg-ue-card {
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--ink-faint);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .dcg-ue-title {
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  .dcg-link {
+    display: block;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--ink-faint);
+    text-decoration: none;
+    color: var(--ink);
+    font-size: 12px;
+    transition: color .2s;
+  }
+  .dcg-link:last-child { border-bottom: none; }
+  .dcg-link:hover { color: var(--accent); }
+
+</style>
+</head>
+<body>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<style>
+  #auth-gate {
+    position: fixed; inset: 0; background: #111110; z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #auth-gate .g {
+    width: 28px; height: 28px;
+    border: 1.5px solid rgba(200,160,64,.2); border-top-color: #c8a040;
+    border-radius: 50%; animation: gs 1s linear infinite;
+  }
+  @keyframes gs { to { transform: rotate(360deg); } }
+</style>
+<div id="auth-gate"><div class="g"></div></div>
+<script>
+(function() {
+  var CFG = {
+    apiKey:'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',
+    authDomain:'budget-58f12.firebaseapp.com',
+    projectId:'budget-58f12',
+    storageBucket:'budget-58f12.firebasestorage.app',
+    messagingSenderId:'327922790999',
+    appId:'1:327922790999:web:076a60cf85287d3d38e912'
+  };
+  if (!firebase.apps.length) firebase.initializeApp(CFG);
+  firebase.auth().getRedirectResult().catch(function(){});
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user && user.email.toLowerCase() === 'baps.renard@gmail.com') {
+      document.getElementById('auth-gate').style.display = 'none';
+    } else {
+      window.location.href = 'index.html';
+    }
+  });
+})();
+</script>
+  <div class="lo-title">Chargement en cours…</div>
+  <button id="btn-signin-overlay-hab">Connexion Google</button>
+</div>
+<a id="btn-retour" href="index.html">← Accueil</a><a id="btn-retour" href="budget.html" style="right:160px">📒 Budget</a><a id="btn-retour" href="calculateur_financier_DCG.html" style="right:70px">🧮 Calc.</a>
+<div class="page">
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-eyebrow">Programme personnel de développement · 6 phases · 21 jours chacune</div>
+    <h1>Devenir<br><em>meilleur.</em></h1>
+    <div class="cover-sub">6 habitudes · dans l'ordre · sans précipitation</div>
+    <div class="cover-rule"></div>
+    <div class="cover-meta">
+      <strong>Début</strong><br>
+      <input type="date" id="date-debut" class="cover-date-input"><br><br>
+      <strong>Objectif</strong><br>
+      <input type="date" id="date-objectif" class="cover-date-input" readonly style="opacity:0.6;cursor:default;"><br><br>
+      <strong>Succès réel</strong><br>
+      <input type="date" id="date-succes" class="cover-date-input">
+    </div>
+  </div>
+
+  <!-- TIMELINE OVERVIEW -->
+  <div class="section">
+    <div class="section-label">Vue d'ensemble · Les 6 habitudes dans l'ordre</div>
+    <table class="timeline-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Phase</th>
+          <th>Habitude</th>
+          <th>Conseils clés</th>
+          <th>Progression</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="habit-row" data-habit-num="1">
+          <td class="step-num">1</td>
+          <td><span class="habit-phase phase-1">Semaines 1–3</span></td>
+          <td><div class="habit-name">Routine<br>complète du soir</div><div class="habit-duration">Jours 1 → 21</div></td>
+          <td class="habit-tip">
+            <strong>Coucher 22h30 · Réveil 6h00 · Douche + dents · Nettoyage 15 min · Apprentissage 20 min</strong><br>
+            Ces quatre gestes s'enchaînent chaque soir dans le même ordre, formant un bloc invariable avant le coucher.
+            <span class="conseil">Séquence fixe après 18h50 : zone de nettoyage (15 min) → dîner → apprentissage 20 min (DCG ou autre) → douche + dents → lecture → 22h30 lumières éteintes. Réveil 6h00 sans snooze. Pose ton téléphone à 22h00. Si tu rates un élément, tu ne sautes jamais la séquence entière — tu fais au moins le coucher à l'heure.</span>
+          </td>
+          <td>
+            <div class="checks">
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+            </div>
+          </td>
+        </tr>
+
+        <tr class="habit-row" data-habit-num="2">
+          <td class="step-num">2</td>
+          <td><span class="habit-phase phase-2">Semaines 4–6</span></td>
+          <td><div class="habit-name">Vêtements<br>prêts</div><div class="habit-duration">Jours 22 → 42</div></td>
+          <td class="habit-tip">
+            <strong>Dimanche soir : 30 min, toute la semaine préparée</strong><br>
+            Laver · Sécher · Repasser · Plier. 5 tenues sorties et prêtes.
+            <span class="conseil">Suspends les chemises dans l'ordre lundi→vendredi. Le matin tu n'as aucune décision à prendre. Ajoute le repassage dans un podcast ou une série — ça passe sans s'en apercevoir.</span>
+          </td>
+          <td>
+            <div class="checks">
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+            </div>
+          </td>
+        </tr>
+
+        <tr class="habit-row" data-habit-num="3">
+          <td class="step-num">3</td>
+          <td><span class="habit-phase phase-3">Semaines 7–9</span></td>
+          <td><div class="habit-name">Repas<br>du midi</div><div class="habit-duration">Jours 43 → 63</div></td>
+          <td class="habit-tip">
+            <strong>Prépare le soir ce que tu mangeras demain midi</strong><br>
+            5 min après le dîner — un tupperware, c'est tout.
+            <span class="conseil">Le vendredi est géré (restaurant collègues). Pour les autres jours : riz + protéine + légumes, 3 ingrédients max. La simplicité, c'est ce qu'on tient dans la durée.</span>
+          </td>
+          <td>
+            <div class="checks">
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+            </div>
+          </td>
+        </tr>
+
+        <tr class="habit-row" data-habit-num="4">
+          <td class="step-num">4</td>
+          <td><span class="habit-phase phase-4">Semaines 10–12</span></td>
+          <td><div class="habit-name">Manger<br>équilibré</div><div class="habit-duration">Jours 64 → 84</div></td>
+          <td class="habit-tip">
+            <strong>Règle de l'assiette : ½ légumes · ¼ protéine · ¼ féculent</strong><br>
+            Pas un régime — juste de la structure.
+            <span class="conseil">Ne supprime rien. Ajoute. D'abord une portion de légumes à chaque repas, et le reste suit naturellement. Tes tickets resto couvrent la cantine — choisis la formule avec crudités.</span>
+          </td>
+          <td>
+            <div class="checks">
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+            </div>
+          </td>
+        </tr>
+
+        <tr class="habit-row" data-habit-num="5">
+          <td class="step-num">5</td>
+          <td><span class="habit-phase phase-3">Semaines 13–15</span></td>
+          <td><div class="habit-name">Alimentation<br>saine</div><div class="habit-duration">Jours 85 → 105</div></td>
+          <td class="habit-tip">
+            <strong>Optimise ce que tu manges déjà</strong><br>
+            Maintenant que les repas sont réguliers, on travaille la qualité.
+            <span class="conseil">Meal prep le dimanche : 3 portions pour la semaine. Réduis progressivement les aliments ultra-transformés — un par semaine. Hydratation : 1,5 L minimum, une gourde sur le bureau.</span>
+          </td>
+          <td>
+            <div class="checks">
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+            </div>
+          </td>
+        </tr>
+
+        <tr class="habit-row" data-habit-num="6">
+          <td class="step-num">6</td>
+          <td><span class="habit-phase phase-6">Semaines 16–18</span></td>
+          <td><div class="habit-name">Libération<br>de la dépendance</div><div class="habit-duration">Jours 106 → 126</div></td>
+          <td class="habit-tip">
+            <strong>Le socle est en place — maintenant tu peux te battre</strong><br>
+            Bloqueur sur l'appareil (Cold Turkey, BlockSite). Identifie tes déclencheurs : ennui, stress, solitude.
+            <span class="conseil">Remplace le créneau à risque par une activité physique ou l'apprentissage du soir. Ce n'est pas une question de volonté — c'est une question d'environnement redessiné. Les rechutes font partie du processus : recadre, ne capitule pas.</span>
+          </td>
+          <td>
+            <div class="checks">
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+              <div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div><div class="check-box"></div>
+            </div>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGE BREAK -->
+  <div class="page-break"></div>
+
+  <!-- SCHEDULE -->
+  <div class="section" id="daily-section">
+    <div class="section-label" id="daily-label">Ta journée type · Séquence invariable · heures variables</div>
+    <p class="schedule-intro">Les heures sont des cibles valables quand tu rentres vers 18h50. Si tu rentres plus tard, la séquence reste identique — elle se décale en bloc. Ce qui absorbe le retard : le temps libre. Ce qui ne bouge jamais : les habitudes.</p>
+
+    <div style="display:flex;gap:8px;margin-bottom:20px">
+      <button id="btn-semaine" onclick="switchPlanning('semaine',this)" style="padding:6px 18px;border:1px solid var(--gold);border-radius:4px;background:rgba(201,169,110,.12);color:var(--gold);font-family:inherit;font-size:12px;letter-spacing:.06em;cursor:pointer">📅 Semaine</button>
+      <button id="btn-weekend" onclick="switchPlanning('weekend',this)" style="padding:6px 18px;border:1px solid #636672;border-radius:4px;background:none;color:#a0a3b0;font-family:inherit;font-size:12px;letter-spacing:.06em;cursor:pointer">🌅 Week-end & Jours fériés</button>
+    </div>
+
+    <div id="daily-habit-banner"></div>
+    <div class="schedule-grid">
+
+      <div class="schedule-col">
+        <h3>Matin <em>→ Monaco</em></h3>
+        <div class="time-block highlight-block">
+          <div class="time">6h00</div>
+          <div class="time-label"><strong>Réveil — pas de snooze</strong><small>Lumière allumée · ouvrir la fenêtre de la chambre immédiatement — l'air du matin est le plus frais de la journée</small></div>
+        </div>
+        <div class="time-block">
+          <div class="time">6h05</div>
+          <div class="time-label"><strong>Habillage</strong><small>Vêtements déjà préparés dimanche — aucune décision à prendre</small></div>
+        </div>
+        <div class="time-block">
+          <div class="time">6h15</div>
+          <div class="time-label"><strong>Petit-déjeuner</strong><small>Pris à la maison — avant de partir</small></div>
+        </div>
+        <div class="time-block">
+          <div class="time">6h35</div>
+          <div class="time-label"><strong>Dents</strong><small>Après manger — le fluor reste en place et l'émail n'est pas abrasé</small></div>
+        </div>
+        <div class="time-block highlight-block">
+          <div class="time">6h43</div>
+          <div class="time-label"><strong>Départ — arrêt à 7 min</strong><small>Bus 6h50 · fermer toutes les fenêtres avant de sortir</small></div>
+        </div>
+        <div class="time-block">
+          <div class="time">8h30</div>
+          <div class="time-label"><strong>Travail à Monaco</strong><small>Vendredi : resto collègues midi — pas de DCG ce jour-là</small></div>
+        </div>
+        <div class="time-block highlight-block">
+          <div class="time">midi</div>
+          <div class="time-label"><strong>★ DCG · 20–30 min</strong><small>Manger d'abord · puis cours, fiches, exercices · même créneau tous les jours · vendredi = repos</small></div>
+        </div>
+      </div>
+
+      <div class="schedule-col" id="evening-col">
+        <h3>Soir <em>→ Maison</em></h3>
+        <div class="time-block">
+          <div class="time">17h30</div>
+          <div class="time-label"><strong>Fin du travail</strong><small>L'heure de retour est variable — la séquence qui suit ne l'est pas</small></div>
+        </div>
+        <div id="evening-blocks"></div>
+      </div>
+
+      <!-- PLANNING WEEK-END (caché par défaut) -->
+      <div class="schedule-col" id="weekend-morning-col" style="display:none">
+        <h3>Matin <em>→ Repos</em></h3>
+        <div class="time-block">
+          <div class="time">libre</div>
+          <div class="time-label"><strong>Réveil naturel</strong><small>Pas d'alarme — le corps récupère. Idéalement avant 9h pour ne pas décaler la semaine suivante</small></div>
+        </div>
+        <div class="time-block highlight-block">
+          <div class="time">matin</div>
+          <div class="time-label"><strong>Hygiène & petit-déj.</strong><small>Même séquence qu'en semaine, à ton rythme · pas de pression horaire</small></div>
+        </div>
+        <div class="time-block">
+          <div class="time">+30'</div>
+          <div class="time-label"><strong>Zone de nettoyage</strong><small>La zone du jour (voir rotation hebdo) · plus de temps disponible → approfondir si besoin</small></div>
+        </div>
+        <div class="time-block highlight-block">
+          <div class="time">après-midi</div>
+          <div class="time-label"><strong>★ DCG ou apprentissage</strong><small>Plus de temps qu'en semaine — exploite-le : 45–60 min possible · sinon 20 min minimum</small></div>
+        </div>
+        <div class="time-block">
+          <div class="time">libre</div>
+          <div class="time-label"><strong>Temps libre long</strong><small>Sorties, amis, séries, sport · profites-en pleinement — tu as respecté tes habitudes</small></div>
+        </div>
+      </div>
+      <div class="schedule-col" id="weekend-evening-col" style="display:none">
+        <h3>Soir <em>→ Routine</em></h3>
+        <div id="weekend-evening-blocks"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 21-DAY STRIP TRACKER -->
+  <div class="section page-break">
+    <div class="section-label">Suivi · 21 jours par habitude · Coche chaque jour réussi</div>
+    <p class="tracker-intro">
+      Remplis une case par jour. Si tu rates un jour, ne laisse jamais deux cases vides de suite — c'est la règle absolue. Un jour raté, c'est un accident. Deux jours ratés, c'est le début d'une autre habitude.
+      <br>Les cases ★ marquent les jalons : <strong>jours 7, 14 et 21</strong>. Félicite-toi à chaque étoile.
+    </p>
+
+    <div id="tracker-container"></div>
+
+    <script>
+const FIREBASE_CONFIG = {
+  apiKey:            'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',
+  authDomain:        'budget-58f12.firebaseapp.com',
+  projectId:         'budget-58f12',
+  storageBucket:     'budget-58f12.firebasestorage.app',
+  messagingSenderId: '327922790999',
+  appId:             '1:327922790999:web:076a60cf85287d3d38e912'
+};
+
+      const STORAGE_KEY = 'habitudes_v1';
+      function loadState() {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+      }
+      function saveState(state) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+        // Sync Firebase si connecte
+        if (typeof dbSetH === "function") dbSetH(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      // ── DONNÉES DES 9 JOURNÉES TYPE ──
+      const HABITS_DATA = [
+        {
+          num: 1, name: "Routine complète du soir",
+          focus: "Quatre gestes, un seul bloc : nettoyage 15 min → dîner → apprentissage 20 min → douche + dents → lecture → 22h30 lumières éteintes. Réveil 6h00 sans snooze.",
+          evening: [
+            { time: "18h50", label: "Arrivée · Décompression", note: "Ouvrir les fenêtres · en été : seulement si l'extérieur est plus frais", hl: false },
+            { time: "+10'",  label: "★ Zone de nettoyage · 15 min", note: "Lun cuisine · Mar SdB (VMC + aération) · Mer salon · Jeu chambre · Ven sols · rattrapable le lendemain si retard exceptionnel", hl: true, nouveau: true },
+            { time: "+25'",  label: "Dîner", note: "Simple pour l'instant — garde l'énergie pour l'essentiel", hl: false },
+            { time: "+60'",  label: "★ Apprentissage · 20 min", note: "DCG, italien, Duolingo ou autre — créneau fixe, non-négociable · jamais deux jours sans", hl: true, nouveau: true },
+            { time: "+80'",  label: "Temps libre", note: "Série, jeu, amis — profite sans culpabilité · se raccourcit si retard", hl: false },
+            { time: "22h00", label: "★ Douche + dents · téléphone posé", note: "Fermer les fenêtres · en été : garder fermé si la nuit est plus chaude · lecture 20 min", hl: true, nouveau: true },
+            { time: "22h30", label: "★ Lumières éteintes — réveil 6h00", note: "7h30 de sommeil · cible absolue · acceptable jusqu'à 23h00 si retard · jamais deux soirs de suite au-delà", hl: true },
+          ]
+        },
+        {
+          num: 2, name: "Vêtements prêts le dimanche",
+          focus: "Sommeil + hygiène + nettoyage + apprentissage acquis. On supprime les décisions du matin en préparant tout le dimanche soir.",
+          sunday: "★ Dimanche soir — 30 min : laver · sécher · repasser · plier. 5 tenues suspendues dans l'ordre lundi→vendredi.",
+          evening: [
+            { time: "18h50", label: "Arrivée · Décompression", note: "Ouvrir les fenêtres · en été : seulement si l'extérieur est plus frais", hl: false },
+            { time: "+10'",  label: "Zone de nettoyage · 15 min", note: "Lun cuisine · Mar SdB (VMC + aération) · Mer salon · Jeu chambre · Ven sols", hl: false },
+            { time: "+25'",  label: "Dîner", note: "Simple pour l'instant", hl: false },
+            { time: "+60'",  label: "Apprentissage · 20 min", note: "DCG ou autre — créneau fixe", hl: true },
+            { time: "+80'",  label: "Temps libre", note: "Série, jeu, amis", hl: false },
+            { time: "22h00", label: "Douche + dents + lit", note: "Fermer les fenêtres · téléphone posé · lecture 20 min", hl: true },
+            { time: "22h30", label: "Lumières éteintes", note: "7h30 de sommeil → réveil 6h00", hl: false },
+          ]
+        },
+        {
+          num: 3, name: "Repas du midi préparé",
+          focus: "Ajoute 5 minutes après le dîner pour préparer le tupperware du lendemain. 3 ingrédients max : riz + protéine + légumes.",
+          evening: [
+            { time: "18h50", label: "Arrivée · Décompression", note: "Ouvrir les fenêtres · en été : seulement si l'extérieur est plus frais", hl: false },
+            { time: "+10'",  label: "Zone de nettoyage · 15 min", note: "Lun cuisine · Mar SdB (VMC + aération) · Mer salon · Jeu chambre · Ven sols", hl: false },
+            { time: "+25'",  label: "★ Dîner + tupperware du lendemain", note: "Prépare les deux en même temps · 3 ingrédients max · vendredi géré (collègues resto)", hl: true, nouveau: true },
+            { time: "+55'",  label: "Apprentissage · 20 min", note: "DCG ou autre — créneau fixe", hl: true },
+            { time: "+75'",  label: "Temps libre", note: "Se raccourcit si retard", hl: false },
+            { time: "22h00", label: "Douche + dents + lit", note: "Fermer les fenêtres · téléphone posé · lecture 20 min", hl: true },
+            { time: "22h30", label: "Lumières éteintes", note: "7h30 de sommeil → réveil 6h00", hl: false },
+          ]
+        },
+        {
+          num: 4, name: "Alimentation équilibrée",
+          focus: "Règle de l'assiette : ½ légumes · ¼ protéine · ¼ féculent. Ne supprime rien — ajoute d'abord une portion de légumes.",
+          evening: [
+            { time: "18h50", label: "Arrivée · Décompression", note: "Ouvrir les fenêtres · en été : seulement si l'extérieur est plus frais", hl: false },
+            { time: "+10'",  label: "Zone de nettoyage · 15 min", note: "Lun cuisine · Mar SdB (VMC + aération) · Mer salon · Jeu chambre · Ven sols", hl: false },
+            { time: "+25'",  label: "★ Dîner équilibré + tupperware", note: "½ légumes · ¼ protéine · ¼ féculent · même règle pour le tupperware · tickets resto : formule avec crudités", hl: true, nouveau: true },
+            { time: "+55'",  label: "Apprentissage · 20 min", note: "DCG ou autre — créneau fixe", hl: true },
+            { time: "+75'",  label: "Temps libre", note: "Se raccourcit si retard — c'est lui qui absorbe", hl: false },
+            { time: "22h00", label: "Douche + dents + lit", note: "Fermer les fenêtres · téléphone posé · lecture 20 min", hl: true },
+            { time: "22h30", label: "Lumières éteintes", note: "Cible · jamais deux soirs de suite au-delà de 23h30", hl: false },
+          ]
+        },
+        {
+          num: 5, name: "Alimentation saine · qualité",
+          focus: "Meal prep le dimanche : 3 portions pour la semaine. Réduis un aliment ultra-transformé par semaine. 1,5L d'eau minimum par jour.",
+          sunday: "★ Dimanche — meal prep : 3 portions pour la semaine · vêtements prêts aussi",
+          evening: [
+            { time: "18h50", label: "Arrivée · Décompression", note: "Ouvrir les fenêtres · en été : seulement si l'extérieur est plus frais", hl: false },
+            { time: "+10'",  label: "Zone de nettoyage · 15 min", note: "Lun cuisine · Mar SdB (VMC + aération) · Mer salon · Jeu chambre · Ven sols", hl: false },
+            { time: "+25'",  label: "★ Dîner qualité + tupperware", note: "Privilégie le fait maison · réduis un ultra-transformé/semaine · 1,5L eau dans la journée · le meal prep du dimanche allège cette étape", hl: true, nouveau: true },
+            { time: "+55'",  label: "Apprentissage · 20 min", note: "Duolingo · série en VO · podcast", hl: true },
+            { time: "+75'",  label: "Temps libre", note: "Se raccourcit si retard — c'est lui qui absorbe", hl: false },
+            { time: "22h00", label: "Douche + dents + lit", note: "Fermer les fenêtres · téléphone posé · lecture 20 min", hl: true },
+            { time: "22h30", label: "Lumières éteintes", note: "Cible · jamais deux soirs de suite au-delà de 23h30", hl: false },
+          ]
+        },
+        {
+          num: 6, name: "Libération de la dépendance",
+          focus: "Bloqueur activé (Cold Turkey / BlockSite). Identifie ton déclencheur : ennui, stress, solitude. Remplace le créneau à risque par une activité physique ou du DCG. Les rechutes font partie du processus — recadre, ne capitule pas.",
+          evening: [
+            { time: "18h50", label: "Arrivée · Décompression", note: "Ouvrir les fenêtres · en été : seulement si l'extérieur est plus frais", hl: false },
+            { time: "+10'",  label: "Zone de nettoyage · 15 min", note: "Lun cuisine · Mar SdB (VMC + aération) · Mer salon · Jeu chambre · Ven sols", hl: false },
+            { time: "+25'",  label: "Dîner qualité + tupperware", note: "½ légumes · ¼ protéine · ¼ féculent · fait maison prioritaire", hl: false },
+            { time: "+55'",  label: "Apprentissage · 20 min", note: "Duolingo · série en VO · podcast", hl: true },
+            { time: "+75'",  label: "★ Temps libre · bloqueur actif", note: "Cold Turkey / BlockSite activé · si créneau à risque identifié : remplace par activité physique ou DCG", hl: true, nouveau: true },
+            { time: "22h00", label: "Douche + dents + lit", note: "Fermer les fenêtres · téléphone posé · lecture 20 min", hl: true },
+            { time: "22h30", label: "Lumières éteintes", note: "Cible · jamais deux soirs de suite au-delà de 23h30", hl: false },
+          ]
+        },
+      ];
+
+      // ── VALIDATION ──
+      function isValidated(habitNum, state) {
+        let total = 0;
+        for (let i = 1; i <= 21; i++) {
+          if (state[`tracker_${habitNum}_${i}`]) total++;
+        }
+        const last3 = state[`tracker_${habitNum}_19`] && state[`tracker_${habitNum}_20`] && state[`tracker_${habitNum}_21`];
+        return total >= 18 && last3;
+      }
+
+      function getActiveHabit(state) {
+        for (let i = 1; i <= 6; i++) {
+          if (!isValidated(i, state)) return i;
+        }
+        return 6;
+      }
+
+      function countChecked(habitNum, state) {
+        let n = 0;
+        for (let i = 1; i <= 21; i++) { if (state[`tracker_${habitNum}_${i}`]) n++; }
+        return n;
+      }
+
+      // ── RENDER SCHEDULE ──
+      let currentPlanningMode = 'semaine';
+
+      // Weekend evening data per habit (adapted - no commute, later bedtime OK)
+      const WEEKEND_EVENING = [
+        // H1: Routine complète du soir (weekend version)
+        [
+          { time:'18h00', label:'Décompression', note:'Fin des activités de la journée — ouvrir les fenêtres', hl:false },
+          { time:'+15\'',  label:'★ Zone de nettoyage (15 min)', note:'Même rotation : Lun=cuisine, Mar=SdB, Mer=salon... · le week-end c\'est la zone du jour, pas de jours de semaine — adapte selon quand tu t\'en charges', hl:true },
+          { time:'+30\'',  label:'Dîner', note:'Plus relaxé qu\'en semaine — profite de cuisiner quelque chose de meilleur si tu as le temps', hl:false },
+          { time:'+75\'',  label:'★ Apprentissage (20–45 min)', note:'Créneau étendu le week-end : DCG, lecture, italien — exploite le temps disponible · jamais deux jours sans', hl:true },
+          { time:'22h30', label:'★ Douche + dents + lit', note:'Tolérance : jusqu\'à 23h30 le week-end · fermer les fenêtres · téléphone posé · réveil naturel le lendemain', hl:true },
+        ],
+        // H2: Vêtements prêts
+        [
+          { time:'18h00', label:'Décompression', note:'Fin des activités', hl:false },
+          { time:'+15\'',  label:'Zone de nettoyage (15 min)', note:'Même rotation hebdomadaire', hl:false },
+          { time:'+30\'',  label:'Dîner', note:'Relaxé · cuisiner de bonnes choses', hl:false },
+          { time:'+75\'',  label:'Apprentissage (20–30 min)', note:'Maintien du créneau même le week-end', hl:true },
+          { time:'★ dim', label:'Vêtements de la semaine', note:'Le DIMANCHE soir : laver · sécher · repasser · 5 tenues suspendues dans l\'ordre lun→ven · 30 min suffit', hl:true },
+          { time:'23h00', label:'Lumières éteintes', note:'Réveil naturel lundi — pas d\'alarme à 6h si lundi est aussi un jour férié', hl:false },
+        ],
+        // H3: Repas du midi
+        [
+          { time:'18h00', label:'Décompression', note:'Fin des activités', hl:false },
+          { time:'+15\'',  label:'Zone de nettoyage (15 min)', note:'Même rotation', hl:false },
+          { time:'+30\'',  label:'★ Dîner + batch cooking optionnel', note:'Le week-end est idéal pour préparer 2–3 portions pour la semaine · cuisiner en double · tupperware pour lundi et mardi', hl:true },
+          { time:'+75\'',  label:'Apprentissage (20–30 min)', note:'Créneau maintenu même le week-end', hl:true },
+          { time:'23h00', label:'Douche + dents + lit', note:'Tolérance jusqu\'à 23h30 · fermer les fenêtres', hl:false },
+        ],
+        // H4: Alimentation équilibrée
+        [
+          { time:'18h00', label:'Décompression', note:'Fin des activités', hl:false },
+          { time:'+15\'',  label:'Zone de nettoyage (15 min)', note:'Même rotation', hl:false },
+          { time:'+30\'',  label:'★ Dîner équilibré + batch cook', note:'½ légumes · ¼ protéine · ¼ féculent · le week-end permet un vrai repas cuisiné équilibré · prépare tupperware semaine', hl:true },
+          { time:'+75\'',  label:'Apprentissage (20–30 min)', note:'Créneau maintenu', hl:true },
+          { time:'23h00', label:'Douche + dents + lit', note:'Tolérance jusqu\'à 23h30 · fermer les fenêtres', hl:false },
+        ],
+        // H5: Alimentation saine qualité
+        [
+          { time:'matin', label:'★ Meal prep (dimanche)', note:'Le dimanche matin ou après-midi : 3 portions pour la semaine · équilibre et qualité · 45–60 min · investissement clé de la semaine', hl:true },
+          { time:'18h00', label:'Décompression', note:'Fin des activités', hl:false },
+          { time:'+30\'',  label:'★ Dîner qualitatif + batch', note:'Fait maison prioritaire · réduis un ultra-transformé cette semaine · 1,5L d\'eau dans la journée', hl:true },
+          { time:'+75\'',  label:'Apprentissage (20–30 min)', note:'Maintenu même le week-end', hl:true },
+          { time:'23h00', label:'Douche + dents + lit', note:'Tolérance jusqu\'à 23h30', hl:false },
+        ],
+        // H6: Libération dépendance
+        [
+          { time:'libre',  label:'★ Journée sans consommation', note:'Le week-end est le test réel · identifier les créneaux à risque (ennui, soirée sans plan) · bloqueur actif toute la journée', hl:true },
+          { time:'18h00', label:'Décompression · bloqueur actif', note:'Cold Turkey / BlockSite maintenu · si créneau à risque : remplace par sport, balade, appel d\'ami', hl:false },
+          { time:'+30\'',  label:'Dîner qualitatif', note:'Repas complet · fait maison', hl:false },
+          { time:'+75\'',  label:'Apprentissage (20–30 min)', note:'Maintenu — occupation positive dans le créneau à risque du soir', hl:true },
+          { time:'23h00', label:'Douche + dents + lit', note:'Tolérance jusqu\'à 23h30', hl:false },
+        ],
+      ];
+
+      function renderSchedule(activeNum) {
+        const data = HABITS_DATA[activeNum - 1];
+        const banner = document.getElementById('daily-habit-banner');
+        const eveningBlocks = document.getElementById('evening-blocks');
+        const weekendEveningBlocks = document.getElementById('weekend-evening-blocks');
+
+        banner.innerHTML = `
+          <div class="habit-banner">
+            <div class="habit-banner-title">Habitude en cours · ${activeNum} / 6</div>
+            <div class="habit-banner-name">${data.name}</div>
+            <div class="habit-banner-focus">${data.focus}</div>
+            ${data.sunday ? `<div class="habit-banner-sunday">${data.sunday}</div>` : ''}
+          </div>`;
+
+        eveningBlocks.innerHTML = data.evening.map(b => {
+          const cls = b.nouveau ? 'nouveau-block' : (b.hl ? 'highlight-block' : '');
+          return `
+          <div class="time-block ${cls}">
+            <div class="time">${b.time}</div>
+            <div class="time-label"><strong>${b.label}</strong><small>${b.note}</small></div>
+          </div>`;
+        }).join('');
+
+        // Weekend evening blocks
+        const weData = WEEKEND_EVENING[activeNum - 1] || [];
+        weekendEveningBlocks.innerHTML = weData.map(b => {
+          const cls = b.hl ? 'highlight-block' : '';
+          return `
+          <div class="time-block ${cls}">
+            <div class="time">${b.time}</div>
+            <div class="time-label"><strong>${b.label}</strong><small>${b.note}</small></div>
+          </div>`;
+        }).join('');
+
+        // Equal column heights
+        requestAnimationFrame(() => {
+          const left  = document.querySelector('.schedule-col:first-child');
+          const right = document.getElementById('evening-col');
+          if (!left || !right) return;
+          left.style.minHeight = '';
+          right.style.minHeight = '';
+          const h = Math.max(left.offsetHeight, right.offsetHeight);
+          left.style.minHeight  = h + 'px';
+          right.style.minHeight = h + 'px';
+        });
+      }
+
+      function switchPlanning(mode, btn) {
+        currentPlanningMode = mode;
+        const semWeek = document.getElementById('btn-semaine');
+        const semWe   = document.getElementById('btn-weekend');
+        const mornCol = document.querySelector('.schedule-col:first-child');
+        const eveCol  = document.getElementById('evening-col');
+        const weMorn  = document.getElementById('weekend-morning-col');
+        const weEve   = document.getElementById('weekend-evening-col');
+
+        const activeStyle  = 'padding:6px 18px;border:1px solid var(--gold);border-radius:4px;background:rgba(201,169,110,.12);color:var(--gold);font-family:inherit;font-size:12px;letter-spacing:.06em;cursor:pointer';
+        const inactiveStyle= 'padding:6px 18px;border:1px solid #636672;border-radius:4px;background:none;color:#a0a3b0;font-family:inherit;font-size:12px;letter-spacing:.06em;cursor:pointer';
+
+        if (mode === 'semaine') {
+          semWeek.style.cssText = activeStyle;
+          semWe.style.cssText   = inactiveStyle;
+          if (mornCol) mornCol.style.display = '';
+          if (eveCol)  eveCol.style.display  = '';
+          if (weMorn)  weMorn.style.display  = 'none';
+          if (weEve)   weEve.style.display   = 'none';
+        } else {
+          semWeek.style.cssText = inactiveStyle;
+          semWe.style.cssText   = activeStyle;
+          if (mornCol) mornCol.style.display = 'none';
+          if (eveCol)  eveCol.style.display  = 'none';
+          if (weMorn)  weMorn.style.display  = '';
+          if (weEve)   weEve.style.display   = '';
+        }
+      }
+
+      // ── TRACKER 21 JOURS ──
+      const habits = [
+        { num: 1, name: "Routine complète du soir (sommeil + nettoyage + apprentissage + douche)" },
+        { num: 2, name: "Vêtements propres, repassés et prêts (dimanche)" },
+        { num: 3, name: "Repas préparé pour le midi" },
+        { num: 4, name: "Alimentation équilibrée (assiette ½·¼·¼)" },
+        { num: 5, name: "Alimentation saine · qualité améliorée" },
+        { num: 6, name: "Libération · journée sans consommation" },
+      ];
+      const milestones = [7, 14, 21];
+      const container = document.getElementById('tracker-container');
+      let state = loadState();
+
+      function refreshAll() {
+        state = loadState();
+        const activeNum = getActiveHabit(state);
+        renderSchedule(activeNum);
+
+        habits.forEach(h => {
+          const validated = isValidated(h.num, state);
+          const div = document.getElementById(`tracker-habit-${h.num}`);
+          if (!div) return;
+          if (validated) {
+            div.classList.add('validated');
+          } else {
+            div.classList.remove('validated');
+          }
+          const statusEl = div.querySelector('.validation-status');
+          if (statusEl) {
+            const checked = countChecked(h.num, state);
+            const last3 = state[`tracker_${h.num}_19`] && state[`tracker_${h.num}_20`] && state[`tracker_${h.num}_21`];
+            if (validated) {
+              statusEl.className = 'validation-status ok';
+              statusEl.textContent = '✓ Habitude validée — passe à la suivante';
+            } else if (h.num === activeNum) {
+              const remaining = 18 - checked;
+              statusEl.className = 'validation-status warn';
+              statusEl.textContent = `${checked}/21 cochés · ${checked >= 18 ? (last3 ? '' : 'il manque les 3 derniers consécutifs') : `encore ${remaining} jour${remaining > 1 ? 's' : ''} minimum`}`;
+            } else {
+              statusEl.className = 'validation-status';
+              statusEl.textContent = '';
+            }
+          }
+        });
+      }
+
+      habits.forEach(h => {
+        const div = document.createElement('div');
+        div.className = 'tracker-habit';
+        div.id = `tracker-habit-${h.num}`;
+
+        const header = document.createElement('div');
+        header.className = 'tracker-habit-header';
+        header.innerHTML = `<span class="tracker-num">${h.num}.</span><span class="tracker-name">${h.name}</span>`;
+
+        const status = document.createElement('div');
+        status.className = 'validation-status';
+        status.style.marginBottom = '6px';
+
+        const boxes = document.createElement('div');
+        boxes.className = 'tracker-boxes';
+
+        for (let i = 1; i <= 21; i++) {
+          const box = document.createElement('div');
+          box.className = milestones.includes(i) ? 'tracker-box tracker-milestone' : 'tracker-box';
+          box.setAttribute('data-n', i);
+          const key = `tracker_${h.num}_${i}`;
+          if (state[key]) box.classList.add('checked');
+          box.addEventListener('click', () => {
+            const s = loadState();
+            const isNowChecked = box.classList.toggle('checked');
+            if (isNowChecked) s[key] = 1; else delete s[key];
+            // sync → vue d'ensemble
+            const cBox = checkBoxMap[h.num - 1] && checkBoxMap[h.num - 1][i - 1];
+            const cKey = `check_${h.num - 1}_${i - 1}`;
+            if (cBox) {
+              if (isNowChecked) { cBox.classList.add('checked'); s[cKey] = 1; }
+              else              { cBox.classList.remove('checked'); delete s[cKey]; }
+            }
+            saveState(s);
+            refreshAll();
+          });
+          boxes.appendChild(box);
+        }
+
+        div.appendChild(header);
+        div.appendChild(status);
+        div.appendChild(boxes);
+        container.appendChild(div);
+      });
+
+      // ── CASES TABLEAU PRINCIPAL ──
+      // Build a lookup: checkBoxes[habitIdx][dayIdx] = DOM element
+      const checkBoxMap = {};
+      document.querySelectorAll('.checks').forEach((group, habitIdx) => {
+        checkBoxMap[habitIdx] = {};
+        group.querySelectorAll('.check-box').forEach((box, dayIdx) => {
+          const dayNum = dayIdx + 1; // 1-based
+          if (dayNum % 7 === 0) box.classList.add('milestone');
+          checkBoxMap[habitIdx][dayIdx] = box;
+          const key = `check_${habitIdx}_${dayIdx}`;
+          if (state[key]) box.classList.add('checked');
+          box.addEventListener('click', () => {
+            const s = loadState();
+            const isNowChecked = box.classList.toggle('checked');
+            if (isNowChecked) s[key] = 1; else delete s[key];
+            // sync → tracker
+            const tKey = `tracker_${habitIdx + 1}_${dayNum}`;
+            const tBox = document.querySelector(`#tracker-habit-${habitIdx + 1} .tracker-box[data-n="${dayNum}"]`);
+            if (tBox) {
+              if (isNowChecked) { tBox.classList.add('checked'); s[tKey] = 1; }
+              else              { tBox.classList.remove('checked'); delete s[tKey]; }
+            }
+            saveState(s);
+            refreshAll();
+          });
+        });
+      });
+
+      // Init
+      refreshAll();
+    </script>
+  </div>
+
+  <!-- RÈGLES -->
+  <div class="section">
+    <div class="section-label">Principes · Ce qui fait la différence</div>
+    <div class="rules-grid">
+      <div class="rule-item">
+        <h4>Une habitude à la fois</h4>
+        <p>Ne commence pas la suivante avant d'avoir validé la précédente : 18 jours cochés sur 21 <em>et</em> les 3 derniers consécutifs. Ce n'est pas de la lenteur — c'est ce qui rend chaque habitude permanente plutôt que temporaire.</p>
+      </div>
+      <div class="rule-item">
+        <h4>85 % de réussite, pas 100 %</h4>
+        <p>Viser la perfection fragilise le système : un jour raté devient une catastrophe. 18/21 jours, c'est exigeant sans être punitif. Les 3 derniers jours consécutifs valident que l'habitude tient — pas seulement qu'elle a tenu.</p>
+      </div>
+      <div class="rule-item">
+        <h4>Jamais deux jours vides</h4>
+        <p>C'est la seule règle qui compte vraiment. Une journée ratée, tu reprends le lendemain. Deux journées ratées, tu es en train de construire l'habitude inverse.</p>
+      </div>
+      <div class="rule-item">
+        <h4>L'environnement fait tout</h4>
+        <p>Prépare les outils à l'avance : vêtements le dimanche, tupperware le soir, brosse à dents visible. Quand les outils sont en place, le geste se fait presque seul. Ta volonté est une ressource limitée — économise-la.</p>
+      </div>
+      <div class="rule-item">
+        <h4>Identité, pas performance</h4>
+        <p>Ne te dis pas "j'essaie de faire du sport" mais "je suis quelqu'un qui prend soin de lui". Chaque case cochée renforce qui tu es, pas juste ce que tu fais.</p>
+      </div>
+      <div class="rule-item">
+        <h4>Le trajet fait partie du plan</h4>
+        <p>25 min de bus jusqu'à Saint-Laurent-du-Var, puis 40–45 min de train jusqu'à Monaco — soit environ 1h15 par trajet. C'est du temps que tu as déjà, chaque jour. Le matin : révision de fiches DCG (flashcards sur téléphone via Anki, ou fiches papier), ou simplement se préparer mentalement à la journée. Le soir au retour : relecture calme d'un cours, ou vraie décompression si tu es épuisé — l'essentiel est de ne pas dissiper ce temps sur les réseaux sociaux. Duolingo en transports n'est pas recommandé (trop de bruit, manque de concentration), le DCG lui fonctionne très bien.</p>
+      </div>
+      <div class="rule-item full">
+        <h4>Le moment le plus important : après une rechute</h4>
+        <p>Tu vas rater des jours. C'est inévitable et ce n'est pas un échec — c'est le processus. Ce qui te définit, c'est la façon dont tu reprends, pas la chute elle-même. Reprends le lendemain sans dramatiser, sans punition, sans discours intérieur sévère. Juste : on recommence.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANIFESTO -->
+  <div class="manifesto">
+    <div class="manifesto-quote">
+      "Tu n'as pas à être <em>parfait</em>.<br>Tu as juste à être<br>un peu meilleur qu'hier."
+    </div>
+    <div class="manifesto-attr">Programme personnel · 6 habitudes · 126 jours</div>
+  </div>
+
+</div>
+
+<script>
+  /* ══════════════════════════════════════
+     FIREBASE CONFIG — À personnaliser
+     ⚠️  Remplis ces valeurs (mêmes que Budget)
+  ══════════════════════════════════════ */
+  ;
+
+  const STORAGE_KEY_HAB = 'habitudes_v1';
+  let _dbH = null, _uidH = null;
+
+  function dbSetH(key, value) {
+    if (!_dbH || !_uidH) return;
+    _dbH.collection('users').doc(_uidH).collection('data').doc(key)
+      .set({ value: value }).catch(e => console.warn('[Firebase/habitudes]', e));
+  }
+  async function dbGetH(key) {
+    if (!_dbH || !_uidH) return null;
+    try {
+      const snap = await _dbH.collection('users').doc(_uidH).collection('data').doc(key).get();
+      return snap.exists ? snap.data().value : null;
+    } catch(e) { return null; }
+  }
+
+
+  // Persist dates across sessions
+  const dateDebut    = document.getElementById('date-debut');
+  const dateObjectif = document.getElementById('date-objectif');
+  const dateSucces   = document.getElementById('date-succes');
+
+  function calcObjectif(debutVal) {
+    if (!debutVal) { dateObjectif.value = ''; return; }
+    const d = new Date(debutVal);
+    d.setDate(d.getDate() + 189);
+    dateObjectif.value = d.toISOString().slice(0, 10);
+  }
+
+  function saveHabState(patch) {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY_HAB) || '{}');
+    Object.assign(s, patch);
+    localStorage.setItem(STORAGE_KEY_HAB, JSON.stringify(s));
+    dbSetH(STORAGE_KEY_HAB, JSON.stringify(s));
+  }
+
+  async function initHabApp() {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    firebase.auth().getRedirectResult().catch(() => {});
+    firebase.auth().onAuthStateChanged(async user => {
+      const ALLOWED = 'baps.renard@gmail.com';
+      if (!user || user.email.toLowerCase() !== ALLOWED) {
+        window.location.replace('index.html');
+        return;
+      }
+      _dbH  = firebase.firestore();
+      _uidH = user.uid;
+      const raw = await dbGetH(STORAGE_KEY_HAB).catch(() => null);
+      if (raw) {
+        try {
+          const saved = JSON.parse(raw);
+          if (saved.date_debut)  { dateDebut.value = saved.date_debut; calcObjectif(saved.date_debut); }
+          if (saved.date_succes) dateSucces.value = saved.date_succes;
+        } catch(e) {}
+      } else {
+        const local = JSON.parse(localStorage.getItem(STORAGE_KEY_HAB) || '{}');
+        if (local.date_debut)  { dateDebut.value = local.date_debut; calcObjectif(local.date_debut); }
+        if (local.date_succes) dateSucces.value = local.date_succes;
+      }
+    });
+  }
+
+  initHabApp().catch(console.error);
+
+  // Tracker refresh on load
+  window.addEventListener('DOMContentLoaded', () => refreshAll());
+
+  </script>
+
+</body>
+</html>
