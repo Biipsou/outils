@@ -74,7 +74,7 @@ button{font-family:'Jost',sans-serif;cursor:pointer}
 @media(max-width:640px){.summary,.lists,.la-grid{grid-template-columns:1fr}.content{padding:14px}.top-nav,.tabs{padding-left:16px;padding-right:16px}}
 </style>
 </head>
-<body style="visibility:hidden">
+<body>
 <nav class="top-nav">
   <span class="nav-title">Budget · Bips</span>
   <button class="nav-home" onclick="location.href='index.html'">← Accueil</button>
@@ -173,6 +173,7 @@ function delBonus(i){STATE.la.bonus.splice(i,1);renderBonusList();renderPrev();s
 function renderBonusList(){const bl=document.getElementById('bl');if(!STATE.la.bonus.length){bl.innerHTML='<div class="empty-bonus">Aucun virement bonus enregistré</div>';return;}bl.innerHTML=STATE.la.bonus.map((b,i)=>`<div class="bonus-item"><span class="bonus-item-date">${b.date}</span><span class="bonus-item-val">+${fmt(b.montant)} €</span><button class="btn-db" onclick="delBonus(${i})">×</button></div>`).join('');}
 function renderPrev(){const tb=document.getElementById('pt');const now=new Date();const curKey=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;const tm=(STATE.la.taux/100)/12;let solde=STATE.la.solde;const M=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];let y=now.getFullYear(),m=now.getMonth();let rows='';for(let i=0;i<12;i++){const key=`${y}-${String(m+1).padStart(2,'0')}`;const bonus=STATE.la.bonus.filter(b=>b.date.startsWith(key)).reduce((s,b)=>s+b.montant,0);const dep=STATE.la.mens+bonus;const int=(solde+dep)*tm;solde+=dep+int;rows+=`<tr class="${key===curKey?'cur':''}"><td class="td-m">${M[m]} ${y}${key===curKey?' ◈':''}</td><td class="td-d">+${fmt(dep)}</td><td class="td-i">+${int.toFixed(2)}</td><td class="td-s">${fmt(solde)} €</td></tr>`;m++;if(m>11){m=0;y++;}}}
 function switchTab(id,btn){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');btn.classList.add('active');if(id==='livreta')renderLaConfig();}
+document.addEventListener('DOMContentLoaded', function(){ renderAll(); });
 let _st;function save(){clearTimeout(_st);_st=setTimeout(dbSave,800);}
 function renderAll(){renderList('rev');renderList('cha');renderSummary();}
 </script>

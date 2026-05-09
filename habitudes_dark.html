@@ -626,7 +626,7 @@ body {
   #btn-signin-hab:hover { background: rgba(201,169,110,0.1); }
 </style>
 </head>
-<body style="visibility:hidden">
+<body>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <style>
@@ -1393,7 +1393,6 @@ const FIREBASE_CONFIG = {
       }
       _dbH  = firebase.firestore();
       _uidH = user.uid;
-      document.body.style.visibility = 'visible';
       const raw = await dbGetH(STORAGE_KEY_HAB).catch(() => null);
       if (raw) {
         try {

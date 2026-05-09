@@ -12,7 +12,7 @@
 :root{--bg:#0c0d10;--s:#13141a;--b:#22242c;--ink:#e0e0dc;--muted:#6b6e7a;--dim:#363840;--gold:#c9a96e;--gd:rgba(201,169,110,.1);--em:#4caf82;--rose:#d97070;--blue:#6aafd6}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{background:var(--bg);background-image:radial-gradient(ellipse 80% 60% at 10% 0%,rgba(201,169,110,.06) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 90% 100%,rgba(106,175,214,.07) 0%,transparent 60%);color:var(--ink);font-family:'Jost',sans-serif;font-weight:300;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px 60px;min-height:100%}
+body{background:var(--bg);background-image:radial-gradient(ellipse 80% 60% at 10% 0%,rgba(201,169,110,.06) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 90% 100%,rgba(106,175,214,.07) 0%,transparent 60%);color:var(--ink);font-family:'Jost',sans-serif;font-weight:300;display:flex;align-items:center;justify-content:center;padding:20px;min-height:100%;overflow:hidden}
 /* LOGIN SCREEN */
 #screen-login{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 100px);width:100%;max-width:460px;gap:32px;text-align:center}
 .login-title{font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:300;line-height:1;color:var(--ink)}
@@ -26,51 +26,50 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 60% at 10
 .login-spinner{display:none;width:30px;height:30px;border:1.5px solid rgba(201,169,110,.15);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 /* APP SCREEN */
-#screen-app{display:none;flex-direction:column;width:100%;max-width:680px;gap:0}
+#screen-app{display:none;flex-direction:column;width:100%;max-width:680px;gap:0;max-height:calc(100vh - 40px);overflow:hidden}
 /* Header */
-.app-header{padding-bottom:28px;border-bottom:1px solid var(--b);margin-bottom:28px}
-.app-eyebrow{font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
-.app-title{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;line-height:1;color:var(--ink)}
+.app-header{padding-bottom:14px;border-bottom:1px solid var(--b);margin-bottom:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.app-header-left{flex:1}
+.app-eyebrow{font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.app-title{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;line-height:1;color:var(--ink)}
 .app-title em{font-style:italic;color:var(--gold)}
-.app-date{margin-top:10px;font-size:12px;color:var(--muted);display:flex;gap:20px;flex-wrap:wrap}
-.app-date span{display:flex;gap:6px;align-items:center}
+.app-date{margin-top:8px;font-size:11px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap}
 .app-date strong{color:var(--ink)}
+/* Déconnexion — top right */
+#btn-signout{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.04);border:1px solid var(--b);border-radius:6px;cursor:pointer;font-size:11px;color:var(--muted);font-family:'Jost',sans-serif;letter-spacing:.06em;padding:6px 12px;white-space:nowrap;transition:border-color .2s,color .2s,background .2s;flex-shrink:0}
+#btn-signout:hover{border-color:var(--rose);color:var(--rose);background:rgba(217,112,112,.07)}
 /* Quote */
-.quote-block{padding:20px 0 24px;border-bottom:1px solid var(--b);margin-bottom:28px}
-.quote-text{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;font-weight:300;color:var(--ink);line-height:1.5;margin-bottom:8px}
-.quote-auth{font-size:11px;color:var(--muted);letter-spacing:.06em}
+.quote-block{padding:10px 0 12px;border-bottom:1px solid var(--b);margin-bottom:12px}
+.quote-text{font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;font-weight:300;color:var(--ink);line-height:1.4;margin-bottom:4px}
+.quote-auth{font-size:10px;color:var(--muted);letter-spacing:.06em}
 /* Recap */
-.recap-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px}
-.recap-card{background:var(--s);border:1px solid var(--b);border-radius:8px;padding:16px 20px}
-.rc-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.rc-val{font-size:22px;font-family:'Cormorant Garamond',serif;color:var(--ink)}
+.recap-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.recap-card{background:var(--s);border:1px solid var(--b);border-radius:6px;padding:10px 14px}
+.rc-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.rc-val{font-size:17px;font-family:'Cormorant Garamond',serif;color:var(--ink)}
 .rc-val.gold{color:var(--gold)}.rc-val.em{color:var(--em)}
-.rc-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.rc-sub{font-size:10px;color:var(--muted);margin-top:2px}
 /* Motto */
-.motto-block{padding:24px 0 28px;border-top:1px solid var(--b);border-bottom:1px solid var(--b);margin-bottom:28px}
-.motto-eyebrow{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
-.motto-text{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;line-height:1.7;color:var(--ink)}
+.motto-block{padding:10px 0 12px;border-bottom:1px solid var(--b);margin-bottom:12px}
+.motto-eyebrow{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.motto-text{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:300;line-height:1.6;color:var(--ink)}
 .motto-text em{font-style:italic;color:var(--gold)}
 /* Navigation */
-.nav-cards{display:flex;flex-direction:column;gap:0;margin-bottom:28px}
-.card{display:flex;align-items:center;gap:18px;text-decoration:none;padding:18px 4px;border-bottom:1px solid var(--b);transition:padding-left .2s}
+.nav-cards{display:flex;flex-direction:column;gap:0}
+.card{display:flex;align-items:center;gap:14px;text-decoration:none;padding:11px 4px;border-bottom:1px solid var(--b);transition:padding-left .2s}
 .card:first-child{border-top:1px solid var(--b)}
 .card:hover{padding-left:8px}
 .card:hover .card-arr{opacity:1;transform:translateX(4px)}
-.card-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:1px solid var(--b)}
+.card-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;border:1px solid var(--b)}
 .card-budget .card-icon{border-color:rgba(201,169,110,.25);background:rgba(201,169,110,.06)}
 .card-hab .card-icon{border-color:rgba(76,175,130,.25);background:rgba(76,175,130,.06)}
 .card-calc .card-icon{border-color:rgba(106,175,214,.25);background:rgba(106,175,214,.06)}
-.card-text{flex:1;display:flex;flex-direction:column;gap:3px}
-.card-name{font-size:15px;font-weight:400;color:var(--ink)}
-.card-desc{font-size:11px;color:var(--muted)}
-.card-arr{font-size:14px;opacity:0;transition:opacity .2s,transform .2s;flex-shrink:0}
+.card-text{flex:1;display:flex;flex-direction:column;gap:2px}
+.card-name{font-size:14px;font-weight:400;color:var(--ink)}
+.card-desc{font-size:10px;color:var(--muted)}
+.card-arr{font-size:13px;opacity:0;transition:opacity .2s,transform .2s;flex-shrink:0}
 .card-budget .card-arr{color:var(--gold)}.card-hab .card-arr{color:var(--em)}.card-calc .card-arr{color:var(--blue)}
-/* Footer */
-.app-footer{display:flex;justify-content:flex-end;padding-top:8px}
-#btn-signout{background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted);font-family:'Jost',sans-serif;letter-spacing:.08em;transition:color .2s}
-#btn-signout:hover{color:var(--rose)}
-@media(max-width:520px){.app-title,.login-title{font-size:42px}.recap-grid{grid-template-columns:1fr}.app-date{flex-direction:column;gap:6px}}
+@media(max-width:520px){.app-title,.login-title{font-size:36px}.recap-grid{grid-template-columns:1fr 1fr}.app-date{flex-direction:column;gap:4px}}
 </style>
 </head>
 <body>
@@ -93,12 +92,15 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 60% at 10
 <!-- ÉCRAN APP -->
 <div id="screen-app">
   <header class="app-header">
-    <div class="app-eyebrow">✦ Espace personnel</div>
-    <h1 class="app-title">Mes<br><em>outils.</em></h1>
-    <div class="app-date">
-      <span>📅 <strong id="today-date">—</strong></span>
-      <span>🕐 Dernière visite : <strong id="last-visit">—</strong></span>
+    <div class="app-header-left">
+      <div class="app-eyebrow">✦ Espace personnel</div>
+      <h1 class="app-title">Mes<br><em>outils.</em></h1>
+      <div class="app-date">
+        <span>📅 <strong id="today-date">—</strong></span>
+        <span>🕐 Visite précédente : <strong id="last-visit">—</strong></span>
+      </div>
     </div>
+    <button id="btn-signout">↩ Déconnexion</button>
   </header>
 
   <div class="quote-block">
@@ -158,9 +160,7 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 60% at 10
     </a>
   </nav>
 
-  <div class="app-footer">
-    <button id="btn-signout">Déconnexion</button>
-  </div>
+
 </div>
 
 <script>
@@ -277,9 +277,12 @@ function initApp(){
   // Date
   document.getElementById('today-date').textContent=formatDate(now);
   // Dernière visite
-  const lv=localStorage.getItem('bips_last_visit');
-  document.getElementById('last-visit').textContent=lv||'Première visite';
-  localStorage.setItem('bips_last_visit',formatDate(now));
+  // Lire la visite PRÉCÉDENTE avant d'écraser
+  const lv = localStorage.getItem('bips_last_visit');
+  document.getElementById('last-visit').textContent = lv || 'Première visite';
+  // Maintenant seulement, enregistrer la visite ACTUELLE
+  const nowStr = formatDate(now) + ' à ' + now.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+  localStorage.setItem('bips_last_visit', nowStr);
   // Citation
   const q=getQuote();
   document.getElementById('quote-text').textContent=q.t;
