@@ -134,9 +134,9 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 60% at 10
   <div class="motto-block">
     <div class="motto-eyebrow">✦ Devise personnelle</div>
     <div class="motto-text">
-      Peux-tu y faire quelque chose ? <em>Alors fais-le</em> — et il n'y a plus de problème.<br>
-      Tu ne peux pas ? <em>Alors lâche</em> — et il n'y a toujours pas de problème.<br>
-      <em>Dans les deux cas, tu es libre.</em>
+      Un problème n'existe que dans un cas : tu <em>pourrais</em> agir, et tu ne le fais pas.<br>
+      Si tu peux — agis, et il n'y a plus de problème. Si tu ne peux pas — accepte, et il n'y a toujours pas de problème.<br>
+      <em>Il n'y a donc jamais de problème. Il n'y a que toi.</em>
     </div>
   </div>
 
@@ -151,7 +151,7 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 60% at 10
       <div class="card-text"><span class="card-name">Habitudes</span><span class="card-desc">6 habitudes · 126 jours · Semaine & Week-end</span></div>
       <span class="card-arr">→</span>
     </a>
-    <a href="calculateur_financier_DCG.html" class="card card-calc">
+    <a href="calculateur.html" class="card card-calc">
       <div class="card-icon">🧮</div>
       <div class="card-text"><span class="card-name">Calculateur DCG</span><span class="card-desc">Finance · Compta · Fiscal · PCG 2022</span></div>
       <span class="card-arr">→</span>
@@ -293,25 +293,29 @@ function initApp(){
 
 function loadBudgetRecap(){
   try{
-    const raw=localStorage.getItem('bips_budget_v1');
+    // Essayer les deux clés possibles (v1 et v2)
+    const raw=localStorage.getItem('bips_budget_v2')||localStorage.getItem('bips_budget_v1');
     if(raw){
       const s=JSON.parse(raw);
-      const rev=(s.rev||[]).reduce((a,i)=>a+(parseFloat(i.v)||0),0);
-      const cha=(s.cha||[]).reduce((a,i)=>a+(parseFloat(i.v)||0),0);
+      const fmt2=n=>n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
+      // Net disponible = revenus HORS tickets restaurant - charges
+      const rev=(s.rev||[]).filter(i=>!i.noNet).reduce((a,i)=>a+(parseFloat(i.v)||0),0);
+      const revBrut=(s.rev||[]).reduce((a,i)=>a+(parseFloat(i.v)||0),0);
+      const cha=(s.cha||[]).filter(i=>!i.sep).reduce((a,i)=>a+(parseFloat(i.v)||0),0);
       const net=rev-cha;
-      const fmt=n=>n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
-      document.getElementById('rc-net').textContent=fmt(net)+' €';
+      document.getElementById('rc-net').textContent=fmt2(net)+' €';
       document.getElementById('rc-net').style.color=net>=0?'var(--gold)':'var(--rose)';
-      document.getElementById('rc-net-sub').textContent=`Revenus ${fmt(rev)} € · Charges ${fmt(cha)} €`;
-      // Livret A prévisionnel (1 mois)
-      const la=s.la||{solde:0,mens:250,taux:3};
+      document.getElementById('rc-net-sub').textContent='Revenus '+fmt2(rev)+' € · Charges '+fmt2(cha)+' €';
+      // Livret A : solde réel + projection 1 mois
+      const la=s.la||{solde:0,mens:250,taux:1.5,bonus:[]};
       const dep=la.mens||250;
-      const int=(la.solde+dep)*((la.taux||3)/100/12);
+      const int=(la.solde+dep)*((la.taux||1.5)/100/12);
       const sol=(la.solde||0)+dep+int;
-      document.getElementById('rc-la').textContent=sol.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
-      document.getElementById('rc-la-sub').textContent=`Dépôt mensuel : ${dep} € · Taux : ${la.taux||3}%`;
+      document.getElementById('rc-la').textContent=fmt2(sol)+' €';
+      document.getElementById('rc-la-sub').textContent='Solde actuel : '+fmt2(la.solde||0)+' € · Dépôt : '+dep+' €/mois';
     } else {
       document.getElementById('rc-net').textContent='—';
+      document.getElementById('rc-net-sub').textContent='Ouvre le budget pour initialiser';
       document.getElementById('rc-la').textContent='—';
     }
   }catch(e){document.getElementById('rc-net').textContent='—';}
@@ -319,33 +323,38 @@ function loadBudgetRecap(){
 
 function loadHabRecap(){
   try{
-    const raw=localStorage.getItem('bips_habitudes_v1')||localStorage.getItem('habitudes_bips');
+    const SK_HAB='bips_hab_v1';
+    const raw=localStorage.getItem(SK_HAB)||localStorage.getItem('bips_habitudes_v1')||localStorage.getItem('habitudes_bips');
+    const HABITS=['Routine complète du soir','Vêtements prêts le dimanche','Repas du midi préparé','Alimentation équilibrée','Alimentation saine','Libération de la dépendance'];
     if(raw){
       const s=JSON.parse(raw);
-      const HABITS=['Routine complète du soir','Vêtements prêts le dimanche','Repas du midi préparé','Alimentation équilibrée','Alimentation saine','Libération de la dépendance'];
-      // Trouver l'habitude active
-      let active=0;
+      // Trouver l'habitude active (non validée)
+      let active=1;
       for(let h=1;h<=6;h++){
-        let count=0,last3=0;
+        let count=0;
         for(let d=1;d<=21;d++) if(s['tracker_'+h+'_'+d]) count++;
-        if(s['tracker_'+h+'_19']&&s['tracker_'+h+'_20']&&s['tracker_'+h+'_21']) last3=1;
-        if(count>=18&&last3){active=h;}else{active=h;break;}
+        const last3=s['tracker_'+h+'_19']&&s['tracker_'+h+'_20']&&s['tracker_'+h+'_21'];
+        if(count>=18&&last3){ active=h+1; } else { active=h; break; }
       }
-      document.getElementById('rc-hab').textContent=HABITS[Math.min(active-1,5)]||'—';
-      document.getElementById('rc-hab-sub').textContent='Habitude '+active+' / 6';
+      active=Math.min(active,6);
+      document.getElementById('rc-hab').textContent=HABITS[active-1]||'—';
+      document.getElementById('rc-hab-sub').textContent='Phase '+active+' / 6 · 21 jours';
+      // Date objectif
       if(s.date_debut){
         const start=new Date(s.date_debut);
-        const today=new Date();
-        const diff=Math.floor((today-start)/(1000*60*60*24));
-        document.getElementById('rc-obj').textContent='J+'+diff+' / 126';
+        const today2=new Date();
+        const diff=Math.floor((today2-start)/(1000*60*60*24));
+        const fin=new Date(start.getTime()+126*24*60*60*1000);
+        const jFin=fin.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
+        document.getElementById('rc-obj').textContent='J+'+Math.max(0,diff)+' · fin le '+jFin;
       } else {
         document.getElementById('rc-obj').textContent='Non démarré';
       }
     } else {
-      document.getElementById('rc-hab').textContent='Non démarré';
+      document.getElementById('rc-hab').textContent='Programme non démarré';
       document.getElementById('rc-obj').textContent='—';
     }
-  }catch(e){}
+  }catch(e){ document.getElementById('rc-hab').textContent='—'; }
 }
 </script>
 </body>
