@@ -57,7 +57,7 @@ input{font-family:'Jost',sans-serif}
 .item-row:hover{background:rgba(255,255,255,.03)}
 .item-emoji{font-size:14px;width:20px;flex-shrink:0;text-align:center}
 .item-label{flex:1;background:none;border:none;color:var(--ink);font-family:'Jost',sans-serif;font-size:13px;font-weight:300;outline:none;min-width:0}
-.item-val{width:80px;background:none;border:none;font-family:'DM Mono',monospace;font-size:13px;text-align:right;outline:none}
+.item-val{width:80px;background:none;border:none;font-family:'DM Mono',monospace;font-size:13px;text-align:right;outline:none;-moz-appearance:textfield;appearance:textfield}.item-val::-webkit-outer-spin-button,.item-val::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .item-val.rv{color:var(--em)}.item-val.ch{color:var(--rose)}
 .item-sfx{font-size:11px;color:var(--dim);flex-shrink:0}
 .btn-del{width:17px;height:17px;border:none;background:none;color:var(--dim);font-size:14px;display:flex;align-items:center;justify-content:center;border-radius:3px;line-height:1;transition:color .15s,background .15s;flex-shrink:0}
@@ -75,7 +75,7 @@ input{font-family:'Jost',sans-serif}
 .la-f{margin-bottom:12px}
 .la-f:last-child{margin-bottom:0}
 .la-f label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
-.la-f input{width:100%;background:var(--bg);border:1px solid var(--b);border-radius:6px;padding:8px 12px;color:var(--ink);font-family:'DM Mono',monospace;font-size:14px;outline:none;transition:border-color .2s}
+.la-f input{width:100%;background:var(--bg);border:1px solid var(--b);border-radius:6px;padding:8px 12px;color:var(--ink);font-family:'DM Mono',monospace;font-size:14px;outline:none;transition:border-color .2s;-moz-appearance:textfield;appearance:textfield}.la-f input::-webkit-outer-spin-button,.la-f input::-webkit-inner-spin-button{-webkit-appearance:none}
 .la-f input:focus{border-color:var(--gold)}
 .btn-valider{width:100%;margin-top:14px;padding:10px;background:var(--gd);border:1px solid rgba(201,169,110,.4);border-radius:6px;color:var(--gold);font-size:12px;letter-spacing:.1em;text-transform:uppercase;transition:background .2s,border-color .2s}
 .btn-valider:hover{background:rgba(201,169,110,.2);border-color:var(--gold)}
@@ -97,6 +97,13 @@ input{font-family:'Jost',sans-serif}
   .summary,.lists-grid,.la-layout{grid-template-columns:1fr}
   .content{padding:12px}.topbar{padding:10px 12px}
 }
+
+/* Emoji picker */
+.emoji-btn{font-size:14px;background:none;border:none;cursor:pointer;padding:0;width:20px;text-align:center;position:relative;flex-shrink:0}
+.emoji-btn:hover::after{content:'';position:absolute;inset:-4px;background:rgba(255,255,255,.06);border-radius:4px}
+.emoji-picker{position:absolute;z-index:1000;background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:8px;display:grid;grid-template-columns:repeat(8,28px);gap:2px;box-shadow:0 8px 24px rgba(0,0,0,.4);left:0;top:24px}
+.emoji-picker button{width:28px;height:28px;font-size:16px;background:none;border:none;cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.emoji-picker button:hover{background:rgba(255,255,255,.08)}
 </style>
 </head>
 <body>
@@ -133,7 +140,7 @@ input{font-family:'Jost',sans-serif}
       <div class="list-card">
         <div class="list-head"><span class="list-head-title">💚 Revenus</span><button class="btn-add" onclick="addItem('rev')">+</button></div>
         <div class="list-body" id="list-rev"></div>
-        <div class="list-foot" style="flex-direction:column;align-items:flex-end;gap:2px"><div style="display:flex;justify-content:space-between;width:100%"><span>Total net (hors TR)</span><strong id="tot-rev">0 €</strong></div><div style="font-size:10px;color:var(--muted)" id="tr-note"></div></div>
+        <div class="list-foot"><span>Total revenus</span><strong id="tot-rev">0 €</strong></div>
       </div>
       <div class="list-card">
         <div class="list-head"><span class="list-head-title">🔴 Charges</span><button class="btn-add" onclick="addItem('cha')">+</button></div>
@@ -228,7 +235,7 @@ const DEFAULTS = {
     {id:'c16',e:'📋',l:'Crédit Perso (fin 02/2027)',v:68.91,sep:false,isCredit:true,end:'2027-02'},
     {id:'c17',e:'🍎',l:'Crédit Apple (fin 11/2027)',v:83.28,sep:false,isCredit:true,end:'2027-11'}
   ],
-  la:{solde:0,mens:250,taux:1.5,bonus:[{date:'01-04-2025',montant:280,source:'init'}]}
+  la:{solde:0,mens:250,taux:1.5,bonus:[]}
 };
 
 let STATE = JSON.parse(JSON.stringify(DEFAULTS));
@@ -269,8 +276,9 @@ function renderList(type){
     }
     const row=document.createElement('div');row.className='item-row';
     const emoji=it.e||'•';
+    row.style.position='relative';
     row.innerHTML=
-      `<span class="item-emoji">${emoji}</span>`+
+      `<button class="emoji-btn" onclick="toggleEmojiPicker(event,'${type}',${i})">${emoji}</button>`+
       `<input class="item-label" value="${(it.l||'').replace(/"/g,'&quot;')}" placeholder="Libellé" onchange="updateItem('${type}',${i},'l',this.value)">`+
       `<input class="item-val ${isR?'rv':'ch'}" type="number" value="${it.v||0}" step="0.01" onchange="updateItem('${type}',${i},'v',parseFloat(this.value)||0)">`+
       `<span class="item-sfx">€</span>`+
@@ -297,7 +305,7 @@ function updateItem(type,i,key,val){
 
 function renderSummary(){
   const items=STATE.cha.filter(i=>!i.sep);
-  const tR=STATE.rev.filter(i=>!i.noNet).reduce((s,i)=>s+(parseFloat(i.v)||0),0);
+  const tR=STATE.rev.filter(i=>!i.noNet&&i.id!=='r2').reduce((s,i)=>s+(parseFloat(i.v)||0),0);
   const tC=items.reduce((s,i)=>s+(parseFloat(i.v)||0),0);
   const n=tR-tC;
   document.getElementById('s-rev').textContent=eur(tR);
@@ -307,24 +315,39 @@ function renderSummary(){
   document.getElementById('tot-rev').textContent=eur(tR);
   // Afficher le total brut revenus (avec TR) dans la colonne
   const tRbrut=STATE.rev.reduce((s,i)=>s+(parseFloat(i.v)||0),0);
-  const trEl=document.getElementById('tr-note');
-  if(trEl) trEl.textContent=tRbrut!==tR?'(hors TR : +'+fmt(tRbrut-tR)+' €)':'';
   document.getElementById('tot-cha').textContent=eur(tC);
 }
 
 function addItem(type){
   const e=type==='rev'?'💵':'💸';
-  STATE[type].push({id:type+Date.now(),e,l:'Nouveau',v:0,sep:false});
+  const newItem={id:type+Date.now(),e,l:'Nouveau',v:0,sep:false};
+  if(type==='cha'){
+    // Insérer avant le premier séparateur (avant Épargne Bonus)
+    const sepIdx=STATE.cha.findIndex(i=>i.sep);
+    if(sepIdx>0) STATE.cha.splice(sepIdx,0,newItem);
+    else STATE.cha.push(newItem);
+  } else {
+    STATE.rev.push(newItem);
+  }
   renderList(type);save();
 }
 function delItem(type,i){STATE[type].splice(i,1);renderList(type);save();}
 
 // ── LIVRET A ──
 function validerConfig(){
-  STATE.la.solde=parseFloat(document.getElementById('la-solde').value)||0;
-  STATE.la.mens =parseFloat(document.getElementById('la-mens').value)||250;
-  STATE.la.taux =parseFloat(document.getElementById('la-taux').value)||1.5;
-  renderPrev();renderBonusList();save();
+  const soldeEl=document.getElementById('la-solde');
+  const mensEl=document.getElementById('la-mens');
+  const tauxEl=document.getElementById('la-taux');
+  if(!soldeEl||!mensEl||!tauxEl){console.error('Livret A inputs introuvables');return;}
+  STATE.la.solde=parseFloat(soldeEl.value)||0;
+  STATE.la.mens =parseFloat(mensEl.value)||250;
+  STATE.la.taux =parseFloat(tauxEl.value)||1.5;
+  renderPrev();
+  renderBonusList();
+  save();
+  // Confirmation visuelle
+  const btn=document.querySelector('.btn-valider');
+  if(btn){const orig=btn.textContent;btn.textContent='✓ Enregistré !';btn.style.color='var(--em)';setTimeout(()=>{btn.textContent=orig;btn.style.color='';},2000);}
 }
 
 function renderLaConfig(){
@@ -351,29 +374,28 @@ function renderPrev(){
   const curKey=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   const taux_m=(STATE.la.taux/100)/12;
   const M=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
-  // Partir de Jan 2025, finir Déc 2026
-  let solde=0, rows='';
+  // Jan 2026 → Déc 2026
+  let solde=STATE.la.solde||0, rows='';
   const bonusMap=(key)=>STATE.la.bonus.filter(b=>{
-    const d=b.date;
+    const d=b.date||'';
     let iso=d;
-    if(d.match(/^\d{2}-\d{2}-\d{4}$/)) iso=d.slice(6)+'-'+d.slice(3,5);
+    // Convertir DD-MM-YYYY → YYYY-MM
+    if(/^\d{2}-\d{2}-\d{4}$/.test(d)) iso=d.slice(6)+'-'+d.slice(3,5);
     return iso.startsWith(key);
   }).reduce((s,b)=>s+b.montant,0);
-  for(let y=2025;y<=2026;y++){for(let m=0;m<12;m++){
-    if(y===2026&&m===12) break;
+  for(let m=0;m<12;m++){
+    const y=2026;
     const key=`${y}-${String(m+1).padStart(2,'0')}`;
     const isCur=key===curKey;
     const isPast=key<curKey;
-    // Avant avril 2025 : 0 déposé
-    const isBeforeStart=key<'2025-04';
-    const dep=isBeforeStart?0:STATE.la.mens+bonusMap(key);
+    const dep=STATE.la.mens+bonusMap(key);
     const int=(solde+dep)*taux_m;
     solde+=dep+int;
     rows+=`<tr class="${isCur?'cur':isPast?'past':''}"><td class="td-m">${M[m]} ${y}${isCur?' ◈':''}</td>`+
-      `<td class="td-d">${dep>0?'+'+fmt(dep):'—'}</td>`+
-      `<td class="td-i">${dep>0?'+'+int.toFixed(2):'—'}</td>`+
+      `<td class="td-d">+${fmt(dep)}</td>`+
+      `<td class="td-i">+${int.toFixed(2)}</td>`+
       `<td class="td-s">${fmt(solde)} €</td></tr>`;
-  }}
+  }
   tb.innerHTML=rows;
 }
 
@@ -384,6 +406,33 @@ function switchTab(id,btn){
   document.getElementById('panel-'+id).classList.add('active');
   btn.classList.add('active');
   if(id==='livreta')renderLaConfig();
+}
+
+
+// ── EMOJI PICKER ──
+const EMOJIS=['💵','💸','💰','💳','🏠','🏡','📱','💻','🌐','📶','⚡','💧','🔥','🚌','🚗','✈️','🎵','📺','🎮','💊','🏥','🎓','📚','🍕','☕','🛒','👔','👟','🏋️','⭐','🎁','📋','🔑','🛡️','🍎','📊','💹','🏦','🤝','🔧','📦'];
+let _pickerOpen=null;
+function toggleEmojiPicker(e,type,idx){
+  e.stopPropagation();
+  // Fermer si déjà ouvert
+  if(_pickerOpen){_pickerOpen.remove();_pickerOpen=null;if(_pickerOpen===null&&e.target.nextSibling?.classList?.contains('emoji-picker'))return;}
+  const btn=e.currentTarget;
+  const picker=document.createElement('div');
+  picker.className='emoji-picker';
+  picker.innerHTML=EMOJIS.map(em=>`<button type="button" onclick="setEmoji(event,'${type}',${idx},'${em}')">${em}</button>`).join('');
+  btn.parentNode.style.position='relative';
+  btn.appendChild(picker);
+  _pickerOpen=picker;
+  // Fermer au clic dehors
+  setTimeout(()=>document.addEventListener('click',closePicker,{once:true}),0);
+}
+function closePicker(){if(_pickerOpen){_pickerOpen.remove();_pickerOpen=null;}}
+function setEmoji(e,type,idx,em){
+  e.stopPropagation();
+  STATE[type][idx].e=em;
+  renderList(type);
+  save();
+  _pickerOpen=null;
 }
 
 // ── SAVE ──

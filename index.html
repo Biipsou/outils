@@ -194,21 +194,24 @@ elBtn.onclick=function(){
   elBtn.style.display='none';
   elDenied.style.display='none';
   elSpinner.style.display='block';
-  const isMobile=/Android|iPhone|iPad|iPod|Opera Mini/i.test(navigator.userAgent);
   const provider=new firebase.auth.GoogleAuthProvider();
-  if(isMobile){
-    auth.signInWithRedirect(provider);
-  } else {
-    auth.signInWithPopup(provider).catch(err=>{
-      if(err.code==='auth/popup-blocked'||err.code==='auth/popup-closed-by-user'){
-        auth.signInWithRedirect(provider);
-      } else {
-        elSpinner.style.display='none';
-        elBtn.style.display='flex';
-        console.error(err);
-      }
-    });
-  }
+  // Toujours essayer popup d'abord — plus fiable sur tous les navigateurs y compris Brave mobile
+  auth.signInWithPopup(provider).catch(function(err){
+    if(err.code==='auth/popup-blocked'||
+       err.code==='auth/cancelled-popup-request'||
+       err.code==='auth/operation-not-supported-in-this-environment'){
+      // Popup bloquée → redirect en fallback
+      auth.signInWithRedirect(provider);
+    } else if(err.code==='auth/popup-closed-by-user'){
+      // Utilisateur a fermé → réafficher le bouton
+      elSpinner.style.display='none';
+      elBtn.style.display='flex';
+    } else {
+      elSpinner.style.display='none';
+      elBtn.style.display='flex';
+      console.error('Auth error:', err.code, err.message);
+    }
+  });
 };
 
 elSignout.onclick=()=>auth.signOut();

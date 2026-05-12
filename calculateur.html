@@ -208,26 +208,9 @@
 <body>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<style>
-  #auth-gate {
-    position: fixed; inset: 0; background: #111110; z-index: 99999;
-    display: flex; align-items: center; justify-content: center;
-  }
-  #auth-gate .g {
-    width: 28px; height: 28px;
-    border: 1.5px solid rgba(200,160,64,.2); border-top-color: #c8a040;
-    border-radius: 50%; animation: gs 1s linear infinite;
-  }
-  @keyframes gs { to { transform: rotate(360deg); } }
+<style> }
 </style>
-<div id="auth-gate"><div class="g"></div></div>
-<script>
-(function() {
-  var CFG={apiKey:'AIzaSyBliUUA9lH7DVSyYblSK6G4jFlQDGxanfk',authDomain:'budget-58f12.firebaseapp.com',projectId:'budget-58f12',storageBucket:'budget-58f12.firebasestorage.app',messagingSenderId:'327922790999',appId:'1:327922790999:web:076a60cf85287d3d38e912'};
-  if (!firebase.apps.length) firebase.initializeApp(CFG);
-})();
-</script>
-</div>
+
 
 <div class="sticky-top">
 <header>

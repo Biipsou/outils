@@ -959,8 +959,13 @@ const FIREBASE_CONFIG = {
       }
       function saveState(state) {
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
-        // Sync Firebase si connecte
-        if (typeof dbSetH === "function") dbSetH(STORAGE_KEY, JSON.stringify(state));
+        // Sync Firebase — utilise _dbH/_uidH définis dans initHabApp
+        try {
+          if (window._dbH && window._uidH) {
+            window._dbH.collection('users').doc(window._uidH).collection('data')
+              .doc(STORAGE_KEY).set({ value: JSON.stringify(state) }).catch(()=>{});
+          }
+        } catch(e) {}
       }
 
       // ── DONNÉES DES 9 JOURNÉES TYPE ──
@@ -1399,10 +1404,7 @@ const FIREBASE_CONFIG = {
   const dateDebut    = document.getElementById('date-debut');
   dateDebut.addEventListener('change', function() {
     calcObjectif(this.value);
-    const data = JSON.parse(localStorage.getItem(STORAGE_KEY_HAB) || '{}');
-    data.date_debut = this.value;
-    localStorage.setItem(STORAGE_KEY_HAB, JSON.stringify(data));
-    if (_dbH && _uidH) dbSetH(STORAGE_KEY_HAB, JSON.stringify(data));
+    saveHabState({ date_debut: this.value });
   });
   const dateObjectif = document.getElementById('date-objectif');
   const dateSucces   = document.getElementById('date-succes');
@@ -1410,7 +1412,7 @@ const FIREBASE_CONFIG = {
   function calcObjectif(debutVal) {
     if (!debutVal) { dateObjectif.value = ''; return; }
     const d = new Date(debutVal);
-    d.setDate(d.getDate() + 189);
+    d.setDate(d.getDate() + 126);
     dateObjectif.value = d.toISOString().slice(0, 10);
   }
 
@@ -1432,6 +1434,13 @@ const FIREBASE_CONFIG = {
       }
       _dbH  = firebase.firestore();
       _uidH = user.uid;
+      window._dbH = _dbH;
+      window._uidH = _uidH;
+      // Pousser immédiatement les données locales vers Firebase (synchro cross-device)
+      const localData = JSON.parse(localStorage.getItem(STORAGE_KEY_HAB) || '{}');
+      if (Object.keys(localData).length) {
+        dbSetH(STORAGE_KEY_HAB, JSON.stringify(localData));
+      }
       const raw = await dbGetH(STORAGE_KEY_HAB).catch(() => null);
       if (raw) {
         try {
