@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bips · Espace personnel</title>
+<title>Bips</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23141620'/><text x='50' y='72' font-family='serif' font-size='62' font-weight='700' text-anchor='middle' fill='%23c9a96e'>B</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -12,7 +13,7 @@
 :root{--bg:#141620;--s:#1c1f2e;--b:#2a2f42;--ink:#e0e0dc;--muted:#6b6e7a;--dim:#363840;--gold:#c9a96e;--gd:rgba(201,169,110,.1);--em:#4caf82;--rose:#d97070;--blue:#6aafd6}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{background:var(--bg);background-image:radial-gradient(ellipse 80% 60% at 10% 0%,rgba(201,169,110,.14) 0%,transparent 55%),radial-gradient(ellipse 60% 50% at 90% 100%,rgba(106,175,214,.13) 0%,transparent 55%),radial-gradient(ellipse 50% 50% at 50% 50%,rgba(120,100,220,.07) 0%,transparent 70%);color:var(--ink);font-family:'Jost',sans-serif;font-weight:300;display:flex;align-items:center;justify-content:center;padding:20px;min-height:100%;overflow:hidden}
+body{background:var(--bg);background-image:radial-gradient(ellipse 80% 60% at 10% 0%,rgba(201,169,110,.14) 0%,transparent 55%),radial-gradient(ellipse 60% 50% at 90% 100%,rgba(106,175,214,.13) 0%,transparent 55%),radial-gradient(ellipse 50% 50% at 50% 50%,rgba(120,100,220,.07) 0%,transparent 70%);color:var(--ink);font-family:'Jost',sans-serif;font-weight:300;display:flex;align-items:flex-start;justify-content:center;padding:40px 24px 60px;min-height:100%}
 /* LOGIN SCREEN */
 #screen-login{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 100px);width:100%;max-width:460px;gap:32px;text-align:center}
 .login-title{font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:300;line-height:1;color:var(--ink)}
@@ -26,47 +27,47 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 60% at 10
 .login-spinner{display:none;width:30px;height:30px;border:1.5px solid rgba(201,169,110,.15);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 /* APP SCREEN */
-#screen-app{display:none;flex-direction:column;width:100%;max-width:680px;gap:0;max-height:calc(100vh - 40px);overflow:hidden}
+#screen-app{display:none;flex-direction:column;width:100%;max-width:900px;gap:0}
 /* Header */
-.app-header{padding-bottom:14px;border-bottom:1px solid var(--b);margin-bottom:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.app-header-left{text-align:center;flex:1}
+.app-header{padding-bottom:20px;border-bottom:1px solid var(--b);margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.app-header-left{text-align:center;flex:1}
 .app-header-left{flex:1}
-.app-eyebrow{font-size:10px;letter-spacing:.45em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.app-title{font-family:'Cormorant Garamond',serif;font-size:50px;font-weight:300;line-height:1;color:var(--ink)}
+.app-eyebrow{font-size:11px;letter-spacing:.45em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.app-title{font-family:'Cormorant Garamond',serif;font-size:64px;font-weight:300;line-height:1;color:var(--ink)}
 .app-title em{font-style:italic;color:var(--gold)}
-.app-date{margin-top:10px;font-size:12px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.app-date{margin-top:12px;font-size:13px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
 .app-date strong{color:var(--ink)}
 /* Déconnexion — top right */
 #btn-signout{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.04);border:1px solid var(--b);border-radius:6px;cursor:pointer;font-size:11px;color:var(--muted);font-family:'Jost',sans-serif;letter-spacing:.06em;padding:6px 12px;white-space:nowrap;transition:border-color .2s,color .2s,background .2s;flex-shrink:0}
 #btn-signout:hover{border-color:var(--rose);color:var(--rose);background:rgba(217,112,112,.07)}
 /* Quote */
-.quote-block{padding:10px 0 12px;border-bottom:1px solid var(--b);margin-bottom:12px}
-.quote-text{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;font-weight:300;color:var(--ink);line-height:1.4;margin-bottom:4px}
-.quote-auth{font-size:10px;color:var(--muted);letter-spacing:.06em}
+.quote-block{padding:16px 0 18px;border-bottom:1px solid var(--b);margin-bottom:18px}
+.quote-text{font-family:'Cormorant Garamond',serif;font-size:22px;font-style:italic;font-weight:300;color:var(--ink);line-height:1.4;margin-bottom:4px}
+.quote-auth{font-size:12px;color:var(--muted);letter-spacing:.06em}
 /* Recap */
-.recap-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px}
-.recap-card{background:var(--s);border:1px solid var(--b);border-radius:6px;padding:10px 14px}
-.rc-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
-.rc-val{font-size:20px;font-family:'Cormorant Garamond',serif;color:var(--ink)}
+.recap-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:20px}
+.recap-card{background:var(--s);border:1px solid var(--b);border-radius:8px;padding:16px 20px}
+.rc-label{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.rc-val{font-size:26px;font-family:'Cormorant Garamond',serif;color:var(--ink)}
 .rc-val.gold{color:var(--gold)}.rc-val.em{color:var(--em)}
-.rc-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.rc-sub{font-size:12px;color:var(--muted);margin-top:2px}
 /* Motto */
-.motto-block{padding:10px 0 12px;border-bottom:1px solid var(--b);margin-bottom:12px}
+.motto-block{padding:16px 0 18px;border-bottom:1px solid var(--b);margin-bottom:18px}
 .motto-eyebrow{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.motto-text{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:300;line-height:1.6;color:var(--ink)}
+.motto-text{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;line-height:1.6;color:var(--ink)}
 .motto-text em{font-style:italic;color:var(--gold)}
 /* Navigation */
-.nav-cards{display:flex;flex-direction:column;gap:0}
-.card{display:flex;align-items:center;gap:14px;text-decoration:none;padding:11px 4px;border-bottom:1px solid var(--b);transition:padding-left .2s}
-.card:first-child{border-top:1px solid var(--b)}
+.nav-cards{display:flex;flex-direction:column;gap:8px}
+.card{display:flex;align-items:center;gap:18px;text-decoration:none;padding:16px 16px;border-bottom:none;transition:padding-left .2s,background .2s}
+.card:first-child{border-top:none}
 .card:hover{padding-left:8px}
 .card:hover .card-arr{opacity:1;transform:translateX(4px)}
-.card-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;border:1px solid var(--b)}
-.card-budget .card-icon{border-color:rgba(201,169,110,.25);background:rgba(201,169,110,.06)}
-.card-hab .card-icon{border-color:rgba(76,175,130,.25);background:rgba(76,175,130,.06)}
-.card-calc .card-icon{border-color:rgba(106,175,214,.25);background:rgba(106,175,214,.06)}
+.card-icon{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:1px solid var(--b)}
+.card-budget{background:rgba(201,169,110,.05);border-radius:8px;}.card-budget .card-icon{border-color:rgba(201,169,110,.3);background:rgba(201,169,110,.1)}
+.card-hab{background:rgba(76,175,130,.05);border-radius:8px;}.card-hab .card-icon{border-color:rgba(76,175,130,.3);background:rgba(76,175,130,.1)}
+.card-calc{background:rgba(106,175,214,.05);border-radius:8px;}.card-calc .card-icon{border-color:rgba(106,175,214,.3);background:rgba(106,175,214,.1)}
 .card-text{flex:1;display:flex;flex-direction:column;gap:2px;align-items:center;text-align:center}
-.card-name{font-size:15px;font-weight:400;color:var(--ink)}
-.card-desc{font-size:11px;color:var(--muted)}
+.card-name{font-size:16px;font-weight:400;color:var(--ink)}
+.card-desc{font-size:12px;color:var(--muted)}
 .card-arr{font-size:13px;opacity:0;transition:opacity .2s,transform .2s;flex-shrink:0}
 .card-budget .card-arr{color:var(--gold)}.card-hab .card-arr{color:var(--em)}.card-calc .card-arr{color:var(--blue)}
 @media(max-width:520px){.app-title,.login-title{font-size:36px}.recap-grid{grid-template-columns:1fr 1fr}.app-date{flex-direction:column;gap:4px}}
@@ -77,7 +78,7 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 60% at 10
 <!-- ÉCRAN CONNEXION -->
 <div id="screen-login">
   <div>
-    <div class="login-title">Espace<br><em>Bips.</em></div>
+    <div class="login-title">Bips.<br></div>
     <div class="login-sub" style="margin-top:10px">Outil personnel · Accès restreint</div>
   </div>
   <div class="login-rule"></div>
@@ -93,7 +94,7 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 60% at 10
 <div id="screen-app">
   <header class="app-header">
     <div class="app-header-left">
-      <div class="app-eyebrow">✦ Espace personnel</div>
+      <div class="app-eyebrow">✦ Bips</div>
       <h1 class="app-title">Mes<br><em>outils.</em></h1>
       <div class="app-date">
         <span>📅 <strong id="today-date">—</strong></span>
@@ -112,7 +113,8 @@ body{background:var(--bg);background-image:radial-gradient(ellipse 80% 60% at 10
     <div class="recap-card">
       <div class="rc-label">Net disponible</div>
       <div class="rc-val gold" id="rc-net">—</div>
-      <div class="rc-sub" id="rc-net-sub">Budget</div>
+      <div class="rc-sub" id="rc-net-sub" style="margin-bottom:6px">Hors tickets restaurant</div>
+      <div style="font-size:11px;color:var(--muted);padding-top:6px;border-top:1px solid var(--b)">Avec TR : <span id="rc-net-tr" style="color:var(--ink)">—</span></div>
     </div>
     <div class="recap-card">
       <div class="rc-label">Livret A · Solde prévu</div>
@@ -307,6 +309,11 @@ function loadBudgetRecap(){
       const cha=(s.cha||[]).filter(i=>!i.sep).reduce((a,i)=>a+(parseFloat(i.v)||0),0);
       const net=rev-cha;
       document.getElementById('rc-net').textContent=fmt2(net)+' €';
+      // Net avec TR (informatif)
+      const revTotal=(s.rev||[]).reduce((a,i)=>a+(parseFloat(i.v)||0),0);
+      const netAvecTR=revTotal-cha;
+      const trEl=document.getElementById('rc-net-tr');
+      if(trEl) trEl.textContent=fmt2(netAvecTR)+' €';
       document.getElementById('rc-net').style.color=net>=0?'var(--gold)':'var(--rose)';
       document.getElementById('rc-net-sub').textContent='Revenus '+fmt2(rev)+' € · Charges '+fmt2(cha)+' €';
       // Livret A : solde réel + projection 1 mois
