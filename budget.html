@@ -183,7 +183,7 @@ input{font-family:'Jost',sans-serif}
         <div class="la-card-body">
           <div class="prev-wrap">
             <table class="prev-table">
-              <thead><tr><th>Mois</th><th>Dépôt</th><th>Intérêts</th><th>Solde fin</th></tr></thead>
+              <thead><tr><th>Mois</th><th>Dépôt</th><th>Intérêts <span style="font-weight:300;opacity:.6">(indicatif)</span></th><th>Solde</th></tr></thead>
               <tbody id="pt"></tbody>
             </table>
           </div>
@@ -402,111 +402,70 @@ function renderBonusList(){
 }
 
 function renderPrev(){
-  // Prévisionnel 2026 avec règle du 20 et historique gelé
-  const tb=document.getElementById('pt');
-  const now=new Date();
-  const curKey=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  const taux_m=(STATE.la.taux/100)/12;
-  const M=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
-  // ── Règle du 20 ──
-  // ≤ 20 : solde = début du mois courant (dépôt pas encore fait)
-  // > 20 : solde = fin du mois courant (dépôt déjà inclus)
-  const nowDay=now.getDate();
-  let anchorYear=now.getFullYear(), anchorMonth=now.getMonth(); // 0-based
-  if(nowDay>20){anchorMonth++;if(anchorMonth>11){anchorMonth=0;anchorYear++;}}
-  const anchorKey=`${anchorYear}-${String(anchorMonth+1).padStart(2,'0')}`;
+  const tb = document.getElementById('pt');
+  if (!tb) return;
+  const now = new Date();
+  const curYear = now.getFullYear();
+  const curMon  = now.getMonth(); // 0-based
+  const taux_m  = (STATE.la.taux / 100) / 12;
+  const M = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
 
-  let solde=0, rows='';
-  const bonusMap=(key)=>STATE.la.bonus.filter(b=>{
-    const d=b.date||'';
-    let iso=d;
-    if(/^\d{2}-\d{2}-\d{4}$/.test(d)) iso=d.slice(6)+'-'+d.slice(3,5);
+  // Bonus par mois (format DD-MM-YYYY → YYYY-MM)
+  const bonusMap = key => STATE.la.bonus.filter(b => {
+    const d = b.date || '';
+    let iso = d;
+    if (/^\d{2}-\d{2}-\d{4}$/.test(d)) iso = d.slice(6) + '-' + d.slice(3,5);
     return iso.startsWith(key);
-  }).reduce((s,b)=>s+b.montant,0);
+  }).reduce((s,b) => s + b.montant, 0);
 
-  for(let m=0;m<12;m++){
-    const key=`2026-${String(m+1).padStart(2,'0')}`;
-    const isCur=key===curKey;
-    const isPast=key<anchorKey;
-    const isAnchor=key===anchorKey;
-    // Jan-Mar 2026 = 0 dépôt
-    const isZero=m<3; // indices 0,1,2 = jan,fév,mar
+  let rows = '';
+  let totalInterets = 0;
+  let solde = 0;
 
-    let dep, int;
-    if(isAnchor && nowDay<=20){
-      // Début du mois courant = STATE.la.solde (avant dépôt)
-      solde=STATE.la.solde;
-      dep=isZero?0:STATE.la.mens+bonusMap(key);
-      int=(solde+dep)*taux_m;
-      solde+=dep+int;
-    } else if(isAnchor && nowDay>20){
-      // Fin du mois courant = STATE.la.solde (dépôt inclus)
-      dep=isZero?0:STATE.la.mens+bonusMap(key);
-      int=solde*taux_m; // intérêts sur solde précédent
-      solde=STATE.la.solde; // on écrase avec le vrai solde
-    } else if(isPast){
-      // Mois passé : calcul historique figé (pas de modification rétroactive)
-      dep=isZero?0:STATE.la.mens+bonusMap(key);
-      int=(solde+dep)*taux_m;
-      solde+=dep+int;
+  for (let m = 0; m < 12; m++) {
+    const key  = `2026-${String(m+1).padStart(2,'0')}`;
+    const isCur = (curYear === 2026 && m === curMon);
+    const isPast = (curYear > 2026) || (curYear === 2026 && m < curMon);
+
+    let dep = 0, interet = 0, soldeAff = '';
+
+    if (isPast) {
+      // Mois passé : affichage historique grisé (on ne touche pas le solde calculé)
+      if (m < 3) {
+        // Jan-Mar : 0
+        rows += `<tr class="past"><td class="td-m">${M[m]} 2026</td><td class="td-d" style="color:var(--dim)">—</td><td class="td-i" style="color:var(--dim)">—</td><td class="td-s" style="color:var(--dim)">—</td></tr>`;
+      } else {
+        dep = STATE.la.mens + bonusMap(key);
+        interet = (solde + dep) * taux_m;
+        solde += dep;
+        totalInterets += interet;
+        rows += `<tr class="past"><td class="td-m">${M[m]} 2026</td><td class="td-d" style="color:var(--dim)">+${fmt(dep)}</td><td class="td-i" style="color:var(--dim)">+${interet.toFixed(2)}</td><td class="td-s" style="color:var(--dim)">${fmt(solde)} €</td></tr>`;
+      }
+    } else if (isCur) {
+      // Mois courant : on affiche le solde réel entré
+      solde = STATE.la.solde;
+      dep = (m < 3) ? 0 : STATE.la.mens + bonusMap(key);
+      interet = solde * taux_m;
+      totalInterets += interet;
+      rows += `<tr class="cur"><td class="td-m">${M[m]} 2026 ◈</td><td class="td-d">+${fmt(dep)}</td><td class="td-i">+${interet.toFixed(2)}</td><td class="td-s">${fmt(solde)} €</td></tr>`;
     } else {
-      // Futur : projection normale
-      dep=STATE.la.mens+bonusMap(key);
-      int=(solde+dep)*taux_m;
-      solde+=dep+int;
+      // Mois futur : solde courant + dépôts cumulés
+      dep = STATE.la.mens + bonusMap(key);
+      solde += dep;
+      interet = solde * taux_m;
+      totalInterets += interet;
+      rows += `<tr><td class="td-m">${M[m]} 2026</td><td class="td-d">+${fmt(dep)}</td><td class="td-i">+${interet.toFixed(2)}</td><td class="td-s">${fmt(solde)} €</td></tr>`;
     }
-
-    const tag=isCur?'cur':(isPast?'past':'');
-    rows+=`<tr class="${tag}"><td class="td-m">${M[m]} 2026${isCur?' ◈':''}</td>`+
-      `<td class="td-d">${dep>0?'+'+fmt(dep):'—'}</td>`+
-      `<td class="td-i">+${int.toFixed(2)}</td>`+
-      `<td class="td-s">${fmt(solde)} €</td></tr>`;
   }
-  tb.innerHTML=rows;ws;
+
+  // Ligne total des intérêts
+  rows += `<tr style="border-top:2px solid var(--b);background:rgba(201,169,110,.05)">
+    <td colspan="2" style="color:var(--gold);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:10px 12px">Total intérêts gagnés en 2026</td>
+    <td class="td-i" style="color:var(--gold);font-weight:500">+${totalInterets.toFixed(2)} €</td>
+    <td class="td-s" style="color:var(--gold)">${fmt(solde)} €</td>
+  </tr>`;
+
+  tb.innerHTML = rows;
 }
 
-// ── TABS ──
-function switchTab(id,btn){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-  document.getElementById('panel-'+id).classList.add('active');
-  btn.classList.add('active');
-  if(id==='livreta')renderLaConfig();
-}
 
-
-// ── EMOJI PICKER ──
-const EMOJIS=['💵','💸','💰','💳','🏠','🏡','📱','💻','🌐','📶','⚡','💧','🔥','🚌','🚗','✈️','🎵','📺','🎮','💊','🏥','🎓','📚','🍕','☕','🛒','👔','👟','🏋️','⭐','🎁','📋','🔑','🛡️','🍎','📊','💹','🏦','🤝','🔧','📦'];
-let _pickerOpen=null;
-function toggleEmojiPicker(e,type,idx){
-  e.stopPropagation();
-  // Fermer si déjà ouvert
-  if(_pickerOpen){_pickerOpen.remove();_pickerOpen=null;if(_pickerOpen===null&&e.target.nextSibling?.classList?.contains('emoji-picker'))return;}
-  const btn=e.currentTarget;
-  const picker=document.createElement('div');
-  picker.className='emoji-picker';
-  picker.innerHTML=EMOJIS.map(em=>`<button type="button" onclick="setEmoji(event,'${type}',${idx},'${em}')">${em}</button>`).join('');
-  btn.parentNode.style.position='relative';
-  btn.appendChild(picker);
-  _pickerOpen=picker;
-  // Fermer au clic dehors
-  setTimeout(()=>document.addEventListener('click',closePicker,{once:true}),0);
-}
-function closePicker(){if(_pickerOpen){_pickerOpen.remove();_pickerOpen=null;}}
-function setEmoji(e,type,idx,em){
-  e.stopPropagation();
-  STATE[type][idx].e=em;
-  renderList(type);
-  save();
-  _pickerOpen=null;
-}
-
-// ── SAVE ──
-let _st;function save(){clearTimeout(_st);_st=setTimeout(dbSave,800);}
-function renderAll(){renderList('rev');renderList('cha');renderSummary();}
-
-// Init
-document.addEventListener('DOMContentLoaded',()=>renderAll());
-</script>
-</body>
-</html>
